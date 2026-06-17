@@ -2,7 +2,7 @@
 
 ## Build Name
 
-Build 8 V1-A — NVIDIA PCIe Multi-GPU Platform Foundations
+Build8 V1-A — NVIDIA PCIe Multi-GPU Platform Foundations
 
 ## Repository
 
@@ -10,13 +10,13 @@ gpu-platform-engineering-lab
 
 ## Objective
 
-Establish and validate an NVIDIA Kubernetes GPU substrate on an 8× RTX 4090 PCIe multi-GPU node.
+Establish and validate an NVIDIA Kubernetes GPU substrate on an 4× RTX 4090 PCIe multi-GPU node.
 
 The build compares the legacy NVIDIA extended-resource path with DRA ResourceClaim-based allocation where supported, then validates Kueue admission, PCIe topology behavior, NCCL communication, vLLM degradation, OOM lifecycle, observability, Golden Path DevEx, and FinOps.
 
 ## Hardware
 
-- GPU: 8× NVIDIA RTX 4090
+- GPU: 4× NVIDIA RTX 4090
 - GPU memory: 24 GB per GPU
 - Topology: PCIe multi-GPU
 - NVLink/NVSwitch: not claimed in this build
@@ -54,7 +54,7 @@ Fallback:
 
 The build is complete when the operator can prove and explain:
 
-1. how an 8× RTX 4090 node appears to Kubernetes;
+1. how an 4× RTX 4090 node appears to Kubernetes;
 2. why this is PCIe topology, not NVLink topology;
 3. how `nvidia.com/gpu` allocation works;
 4. how DRA changes allocation semantics where supported;
