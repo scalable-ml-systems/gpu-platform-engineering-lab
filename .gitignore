@@ -1,0 +1,61 @@
+*notes/
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node (if present)
+node_modules/
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+crash.log
+override.tf
+override.tf.json
+*.tfvars
+*.tfvars.json
+.terraform/
+.terraform.lock.hcl
+
+# Kubernetes / Helm
+charts/**/charts/
+charts/**/tmp/
+charts/**/values.schema.json
+
+# Cloud / Keys
+.aws/
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# Benchmarks
+benchmarks/results/
+benchmarks/*.json
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
