@@ -2,11 +2,11 @@
 
 ## Objective
 
-Validate a production-style Kubernetes GPU platform on an 8× RTX 4090 PCIe multi-GPU node.
+Validate a production-style Kubernetes GPU platform on an 4× RTX 4090 PCIe multi-GPU node.
 
 ## Hardware
 
-- GPU: 8× NVIDIA RTX 4090
+- GPU: 4× NVIDIA RTX 4090
 - GPU memory: 24 GB per GPU
 - Topology class: PCIe multi-GPU
 - NVLink/NVSwitch: out of scope for this build

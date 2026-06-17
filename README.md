@@ -20,6 +20,6 @@ The goal is not only to run GPU workloads, but to understand and validate the pl
 
 Build 8 V1-A — NVIDIA PCIe Multi-GPU Platform Foundations
 
-Hardware target: 8× RTX 4090  
+Hardware target: 4× RTX 4090  
 Topology class: PCIe multi-GPU  
 Primary experiments: Kueue, DRA, NCCL, vLLM, OOM lifecycle, observability, Golden Path, FinOps
