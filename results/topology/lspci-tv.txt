@@ -1,0 +1,17 @@
+-[0000:00]-+-00.0  Intel Corporation 82G33/G31/P35/P31 Express DRAM Controller
+           +-01.0  Cirrus Logic GD 5446
+           +-02.0-[01]----00.0  Red Hat, Inc. Virtio 1.0 network device
+           +-02.1-[02]----00.0  Red Hat, Inc. QEMU XHCI Host Controller
+           +-02.2-[03]----00.0  Red Hat, Inc. Virtio 1.0 block device
+           +-02.3-[04]----00.0  Red Hat, Inc. Virtio 1.0 memory balloon
+           +-10.0  NVIDIA Corporation AD102 [GeForce RTX 4090]
+           +-10.1  NVIDIA Corporation AD102 High Definition Audio Controller
+           +-11.0  NVIDIA Corporation AD102 [GeForce RTX 4090]
+           +-11.1  NVIDIA Corporation AD102 High Definition Audio Controller
+           +-12.0  NVIDIA Corporation AD102 [GeForce RTX 4090]
+           +-12.1  NVIDIA Corporation AD102 High Definition Audio Controller
+           +-13.0  NVIDIA Corporation AD102 [GeForce RTX 4090]
+           +-13.1  NVIDIA Corporation AD102 High Definition Audio Controller
+           +-1f.0  Intel Corporation 82801IB (ICH9) LPC Interface Controller
+           +-1f.2  Intel Corporation 82801IR/IO/IH (ICH9R/DO/DH) 6 port SATA Controller [AHCI mode]
+           \-1f.3  Intel Corporation 82801I (ICH9 Family) SMBus Controller

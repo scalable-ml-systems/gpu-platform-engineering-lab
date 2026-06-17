@@ -1,0 +1,91 @@
+Name:               riftvm
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/instance-type=k3s
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=riftvm
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=true
+                    node.kubernetes.io/instance-type=k3s
+Annotations:        alpha.kubernetes.io/provided-node-ip: 10.21.106.54
+                    flannel.alpha.coreos.com/backend-data: {"VNI":1,"VtepMAC":"4e:56:f3:bf:32:9a"}
+                    flannel.alpha.coreos.com/backend-type: vxlan
+                    flannel.alpha.coreos.com/kube-subnet-manager: true
+                    flannel.alpha.coreos.com/public-ip: 10.21.106.54
+                    k3s.io/hostname: riftvm
+                    k3s.io/internal-ip: 10.21.106.54
+                    k3s.io/node-args: ["server"]
+                    k3s.io/node-config-hash: MLFMUCBMRVINLJJKSG32TOUFWB4CN55GMSNY25AZPESQXZCYRN2A====
+                    k3s.io/node-env: {}
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Wed, 17 Jun 2026 02:47:59 +0000
+Taints:             <none>
+Unschedulable:      false
+Lease:
+  HolderIdentity:  riftvm
+  AcquireTime:     <unset>
+  RenewTime:       Wed, 17 Jun 2026 02:48:18 +0000
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Wed, 17 Jun 2026 02:48:09 +0000   Wed, 17 Jun 2026 02:47:59 +0000   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Wed, 17 Jun 2026 02:48:09 +0000   Wed, 17 Jun 2026 02:47:59 +0000   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Wed, 17 Jun 2026 02:48:09 +0000   Wed, 17 Jun 2026 02:47:59 +0000   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Wed, 17 Jun 2026 02:48:09 +0000   Wed, 17 Jun 2026 02:47:59 +0000   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:  10.21.106.54
+  Hostname:    riftvm
+Capacity:
+  cpu:                28
+  ephemeral-storage:  4159381464Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             192693172Ki
+  pods:               110
+Allocatable:
+  cpu:                28
+  ephemeral-storage:  4046246285006
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             192693172Ki
+  pods:               110
+System Info:
+  Machine ID:                 a32880f2bf874cbfa3edf77f53c5d2d4
+  System UUID:                a32880f2-bf87-4cbf-a3ed-f77f53c5d2d4
+  Boot ID:                    46a9248b-e892-4e2a-a23c-d069c57204a1
+  Kernel Version:             6.8.0-51-generic
+  OS Image:                   Ubuntu 24.04.1 LTS
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://2.2.3-k3s1
+  Kubelet Version:            v1.35.5+k3s1
+  Kube-Proxy Version:         
+PodCIDR:                      10.42.0.0/24
+PodCIDRs:                     10.42.0.0/24
+ProviderID:                   k3s://riftvm
+Non-terminated Pods:          (5 in total)
+  Namespace                   Name                                       CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                                       ------------  ----------  ---------------  -------------  ---
+  kube-system                 coredns-8db54c48d-p7snr                    100m (0%)     0 (0%)      70Mi (0%)        170Mi (0%)     16s
+  kube-system                 helm-install-traefik-crd-6xns9             100m (0%)     32 (114%)   10M (0%)         32G (16%)      13s
+  kube-system                 helm-install-traefik-hqh2t                 100m (0%)     32 (114%)   10M (0%)         32G (16%)      13s
+  kube-system                 local-path-provisioner-5d9d9885bc-4v6tj    0 (0%)        0 (0%)      0 (0%)           0 (0%)         16s
+  kube-system                 metrics-server-786d997795-8glxf            100m (0%)     0 (0%)      70Mi (0%)        0 (0%)         16s
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests        Limits
+  --------           --------        ------
+  cpu                400m (1%)       64 (228%)
+  memory             166800640 (0%)  62674080Ki (32%)
+  ephemeral-storage  0 (0%)          0 (0%)
+  hugepages-1Gi      0 (0%)          0 (0%)
+  hugepages-2Mi      0 (0%)          0 (0%)
+Events:
+  Type    Reason                          Age   From                   Message
+  ----    ------                          ----  ----                   -------
+  Normal  CertificateExpirationOK         22s   k3s-cert-monitor       Node and Certificate Authority certificates managed by k3s are OK
+  Normal  NodePasswordValidationComplete  18s   k3s-supervisor         Deferred node password secret validation complete
+  Normal  Synced                          17s   cloud-node-controller  Node synced successfully
+  Normal  RegisteredNode                  17s   node-controller        Node riftvm event: Registered Node riftvm in Controller

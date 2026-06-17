@@ -1,0 +1,4 @@
+deviceclasses                                    resource.k8s.io/v1                  false        DeviceClass
+resourceclaims                                   resource.k8s.io/v1                  true         ResourceClaim
+resourceclaimtemplates                           resource.k8s.io/v1                  true         ResourceClaimTemplate
+resourceslices                                   resource.k8s.io/v1                  false        ResourceSlice

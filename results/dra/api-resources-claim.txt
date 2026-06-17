@@ -1,0 +1,3 @@
+persistentvolumeclaims              pvc          v1                                  true         PersistentVolumeClaim
+resourceclaims                                   resource.k8s.io/v1                  true         ResourceClaim
+resourceclaimtemplates                           resource.k8s.io/v1                  true         ResourceClaimTemplate

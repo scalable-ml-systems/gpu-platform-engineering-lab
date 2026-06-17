@@ -1,0 +1,1 @@
+kube-system   nvidia-device-plugin-daemonset-wj6t4      1/1     Running     0          24m
