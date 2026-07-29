@@ -1,0 +1,287 @@
+manifest:
+  schema_version: "1.0"
+  manifest_id: "versions-nvidia-gpu-cluster-operations-r01"
+  project: "nvidia-gpu-cluster-operations"
+  repository_path: "gpu-platform-engineering-lab/nvidia-gpu-cluster-operations"
+  environment: "rtx4090-primary"
+  hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+  created_at_utc: null
+  updated_at_utc: null
+  captured_by: null
+  status: "draft"
+  notes: >
+    Populate discovered values from the provisioned host before installation.
+    Populate verified values only after the component passes its validation check.
+
+version_policy:
+  component_status_values:
+    - "planned"
+    - "pending-discovery"
+    - "pending-verification"
+    - "installed"
+    - "verified"
+    - "failed"
+    - "not-applicable"
+  pinning_rules:
+    host_packages: "Pin major and minor versions where provider compatibility permits."
+    kubernetes_components: "Pin exact chart or manifest release versions."
+    container_images: "Record immutable image digest in addition to the human-readable tag."
+    python_dependencies: "Use a lock file with exact package versions."
+  prohibited_tags:
+    - "latest"
+    - "stable"
+    - "main"
+    - "master"
+  change_control:
+    require_adr_for:
+      - "kubernetes distribution change"
+      - "container runtime change"
+      - "NVIDIA integration path change"
+      - "scheduler or admission framework change"
+      - "monitoring stack replacement"
+      - "training framework change"
+      - "inference runtime change"
+
+host:
+  operating_system:
+    distribution: "ubuntu"
+    version: null
+    image_identifier: null
+    status: "pending-discovery"
+    evidence_path: null
+
+  kernel:
+    release: null
+    architecture: "x86_64"
+    status: "pending-discovery"
+    evidence_path: null
+
+  virtualization:
+    type: null
+    mode: null
+    status: "pending-discovery"
+    evidence_path: null
+
+  cpu:
+    logical_cpu_count: 28
+    socket_count: null
+    numa_node_count: null
+    status: "pending-verification"
+    evidence_path: null
+
+  memory:
+    total_gib: 187.5
+    status: "pending-verification"
+    evidence_path: null
+
+nvidia:
+  gpu:
+    model: "NVIDIA RTX 4090"
+    count: 4
+    memory_gib_per_gpu: 24
+    aggregate_memory_gib: 96
+    architecture: "ada-lovelace"
+    mig_supported: false
+    status: "pending-verification"
+    evidence_path: null
+
+  driver:
+    version: null
+    branch: null
+    kernel_module_version: null
+    status: "pending-discovery"
+    evidence_path: null
+
+  container_toolkit:
+    version: null
+    package_version: null
+    status: "planned"
+    evidence_path: null
+
+  device_plugin:
+    version: null
+    deployment_method: "versioned-manifest-or-helm"
+    image:
+      repository: null
+      tag: null
+      digest: null
+    status: "planned"
+    evidence_path: null
+
+  dcgm_exporter:
+    version: null
+    deployment_method: "versioned-manifest-or-helm"
+    image:
+      repository: null
+      tag: null
+      digest: null
+    status: "planned"
+    evidence_path: null
+
+cuda_runtime:
+  host_cuda_toolkit_required: false
+  policy: >
+    Do not install the Ubuntu nvidia-cuda-toolkit package merely to run
+    containerized workloads. Record CUDA runtime versions from pinned workload
+    and qualification containers.
+  qualification_container:
+    cuda_version: null
+    nccl_version: null
+    image:
+      repository: null
+      tag: null
+      digest: null
+    status: "planned"
+    evidence_path: null
+
+container_runtime:
+  name: "containerd"
+  version: null
+  config_version: 2
+  nvidia_runtime_configured: false
+  default_runtime: null
+  status: "planned"
+  evidence_path: null
+
+kubernetes:
+  distribution: "k3s"
+  version: null
+  install_channel: null
+  server_arguments: []
+  status: "planned"
+  evidence_path: null
+
+  api_server:
+    version: null
+    status: "planned"
+    evidence_path: null
+
+  node:
+    kubelet_version: null
+    container_runtime_version: null
+    status: "planned"
+    evidence_path: null
+
+platform_components:
+  kueue:
+    version: null
+    deployment_method: "helm-or-versioned-manifest"
+    chart_version: null
+    image:
+      repository: null
+      tag: null
+      digest: null
+    status: "planned"
+    evidence_path: null
+
+  prometheus:
+    distribution: "kube-prometheus-stack"
+    chart_version: null
+    prometheus_version: null
+    image_digest: null
+    status: "planned"
+    evidence_path: null
+
+  grafana:
+    chart_version: null
+    application_version: null
+    image_digest: null
+    status: "planned"
+    evidence_path: null
+
+  alertmanager:
+    chart_version: null
+    application_version: null
+    image_digest: null
+    status: "planned"
+    evidence_path: null
+
+workload_images:
+  nccl_qualification:
+    workload_contract_id: "workload-nccl-collective-heavy-v1"
+    cuda_version: null
+    nccl_version: null
+    nccl_tests_revision: null
+    image:
+      repository: null
+      tag: null
+      digest: null
+    status: "planned"
+    evidence_path: null
+
+  pytorch_ddp:
+    workload_contract_id: "workload-pytorch-ddp-4gpu-v1"
+    python_version: null
+    pytorch_version: null
+    cuda_version: null
+    nccl_version: null
+    image:
+      repository: null
+      tag: null
+      digest: null
+    status: "planned"
+    evidence_path: null
+
+  vllm:
+    workload_contract_id: "workload-vllm-single-gpu-v1"
+    python_version: null
+    vllm_version: null
+    pytorch_version: null
+    cuda_version: null
+    image:
+      repository: null
+      tag: null
+      digest: null
+    model:
+      name: null
+      revision: null
+      quantization: null
+    status: "planned"
+    evidence_path: null
+
+automation_tooling:
+  ansible:
+    version: null
+    python_version: null
+    collection_versions: {}
+    status: "planned"
+    evidence_path: null
+
+  helm:
+    version: null
+    status: "planned"
+    evidence_path: null
+
+  kubectl:
+    version: null
+    status: "planned"
+    evidence_path: null
+
+  python:
+    version: null
+    dependency_lock_file: null
+    status: "planned"
+    evidence_path: null
+
+source_control:
+  git_commit: null
+  git_branch: null
+  repository_dirty: null
+  status: "pending-discovery"
+
+validation:
+  required_before_phase_1_exit:
+    - "host operating-system and kernel versions recorded"
+    - "NVIDIA driver version recorded"
+    - "containerd version recorded"
+    - "k3s server and kubelet versions recorded"
+    - "NVIDIA Container Toolkit version recorded"
+    - "NVIDIA device-plugin image digest recorded"
+    - "Kueue version and image digest recorded"
+    - "DCGM Exporter version and image digest recorded"
+    - "Prometheus, Grafana, and Alertmanager versions recorded"
+    - "all workload images use immutable digests"
+    - "evidence paths resolve"
+  last_validated_at_utc: null
+  validation_result: "not-run"
+  validation_errors: []

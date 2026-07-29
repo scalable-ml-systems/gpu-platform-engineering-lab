@@ -1,61 +1,48 @@
 *notes/
 *.pem
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.egg-info/
-.eggs/
-dist/
-build/
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Node (if present)
-node_modules/
-
-# Terraform
-*.tfstate
-*.tfstate.backup
-crash.log
-override.tf
-override.tf.json
-*.tfvars
-*.tfvars.json
-.terraform/
-.terraform.lock.hcl
-
-# Kubernetes / Helm
-charts/**/charts/
-charts/**/tmp/
-charts/**/values.schema.json
-
-# Cloud / Keys
-.aws/
+# Environment files and credentials
+.env
+.env.*
+!.env.example
 *.pem
 *.key
+kubeconfig
+kubeconfig.*
 
-# Logs
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Ansible
+*.retry
+
+# Terraform is not currently part of this build
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Generated logs and temporary output
 *.log
-logs/
-*.out
-*.err
+*.tmp
+tmp/
+.cache/
 
-# Benchmarks
-benchmarks/results/
-benchmarks/*.json
+# Large or generated evidence
+results/**/raw/
+results/**/*.tar.gz
+results/**/*.zip
 
-# IDE / OS
+# Kubernetes secrets rendered locally
+*-secret.yaml
+secrets/
+
+# macOS and editor files
+.DS_Store
 .vscode/
 .idea/
-.DS_Store
-Thumbs.db
-
