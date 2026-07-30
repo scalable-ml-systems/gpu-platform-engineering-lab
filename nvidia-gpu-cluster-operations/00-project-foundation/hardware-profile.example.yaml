@@ -1,0 +1,118 @@
+schema_version: "1.0"
+profile_id: "hw-rtx4090-4gpu-pcie-r01"
+project: "nvidia-gpu-cluster-operations"
+
+lifecycle:
+  status: "draft"
+  revision: 1
+  supersedes_profile_id: null
+  superseded_by_profile_id: null
+
+capture:
+  captured_at_utc: null
+  captured_by: null
+  source_environment: "rtx4090-primary"
+  git_commit: null
+  notes: "Populate from guest-visible evidence during Phase 1, Step 1.1."
+
+provider:
+  name: null
+  service_type: "containerized-pod"
+  instance_reference: "rtx49-10c-kn.4"
+  region: null
+  availability_zone: null
+  tenancy: "unknown"
+
+host:
+  operating_system:
+    distribution: null
+    version: null
+    image_identifier: null
+
+  kernel:
+    release: null
+    architecture: "x86_64"
+
+  virtualization:
+    detected: true
+    hypervisor: null
+    gpu_exposure_mode: "unknown"
+    guest_visibility_notes: >
+      Record only capabilities visible inside the guest. Do not infer physical
+      topology or fabric from the GPU model or provider marketing.
+
+  cpu:
+    logical_cpu_count: 28
+    socket_count: null
+    core_count: null
+    numa_node_count: null
+    model: null
+    topology_notes: null
+
+  memory:
+    total_bytes: 201326592000
+    numa_distribution: []
+
+  storage: []
+
+accelerator_inventory:
+  vendor: "nvidia"
+  expected_count: 4
+  observed_count: null
+  devices: []
+
+  driver:
+    version: null
+    cuda_compatibility: null
+    gsp_firmware_version: null
+
+topology:
+  guest_visible_topology_authoritative: true
+  gpu_pair_matrix: []
+
+  nvlink:
+    expected: false
+    exposed: null
+    link_count: null
+    active_link_count: null
+    status: "unknown"
+
+  pcie_peer_access:
+    expected: true
+    available: null
+    status: "unknown"
+
+  topology_summary: null
+
+network:
+  interfaces: []
+
+  rdma:
+    expected: false
+    device_visible: null
+    transport: "unknown"
+    link_state: "unknown"
+    gpudirect_rdma: "not-tested"
+
+  gpu_nic_locality: []
+
+software_manifest:
+  version_manifest_id: "versions-nvidia-gpu-cluster-operations-r01"
+  path: "00-project-foundation/version-manifest.yaml"
+
+qualification_references:
+  qualification_profile_id: "qual-rtx4090-4gpu-pcie-v1"
+  latest_result_path: null
+
+evidence:
+  root: "01-cluster-deployment/evidence/hw-rtx4090-4gpu-pcie-r01"
+  artifacts: []
+
+operator_conclusion:
+  inventory_summary: null
+  exposed_capabilities: []
+  limitations: []
+  qualification_deferred: true
+  notes: >
+    The hardware profile records observed inventory and exposed capability only.
+    Workload eligibility is decided by the qualification profile and result.

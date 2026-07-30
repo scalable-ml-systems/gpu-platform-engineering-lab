@@ -1,0 +1,807 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://example.invalid/schemas/hardware-profile.schema.yaml"
+title: "NVIDIA GPU Cluster Operations Hardware Profile"
+description: >
+  Describes the guest-visible hardware and platform capabilities of one GPU node
+  at one captured point in time. This contract records observed inventory and
+  exposed capabilities. It does not define qualification thresholds or scheduler
+  eligibility.
+type: object
+additionalProperties: false
+
+required:
+  - schema_version
+  - profile_id
+  - project
+  - lifecycle
+  - capture
+  - provider
+  - host
+  - accelerator_inventory
+  - topology
+  - network
+  - evidence
+  - operator_conclusion
+
+properties:
+  schema_version:
+    type: string
+    const: "1.0"
+
+  profile_id:
+    type: string
+    pattern: "^hw-[a-z0-9]+-[1-9][0-9]*gpu-[a-z0-9-]+-r[0-9]{2}$"
+    examples:
+      - "hw-rtx4090-4gpu-pcie-r01"
+      - "hw-a100-4gpu-passthrough-r01"
+
+  project:
+    type: string
+    const: "nvidia-gpu-cluster-operations"
+
+  lifecycle:
+    type: object
+    additionalProperties: false
+    required:
+      - status
+      - revision
+    properties:
+      status:
+        type: string
+        enum:
+          - draft
+          - discovered
+          - verified
+          - superseded
+      revision:
+        type: integer
+        minimum: 1
+      supersedes_profile_id:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^hw-[a-z0-9]+-[1-9][0-9]*gpu-[a-z0-9-]+-r[0-9]{2}$"
+      superseded_by_profile_id:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^hw-[a-z0-9]+-[1-9][0-9]*gpu-[a-z0-9-]+-r[0-9]{2}$"
+
+  capture:
+    type: object
+    additionalProperties: false
+    required:
+      - captured_at_utc
+      - captured_by
+      - source_environment
+      - git_commit
+    properties:
+      captured_at_utc:
+        anyOf:
+          - type: "null"
+          - type: string
+            format: date-time
+      captured_by:
+        anyOf:
+          - type: "null"
+          - type: string
+            minLength: 1
+      source_environment:
+        type: string
+        enum:
+          - rtx4090-primary
+          - a100-passthrough-negative
+          - fabric-enabled-positive
+      git_commit:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^[0-9a-f]{7,40}$"
+      notes:
+        anyOf:
+          - type: "null"
+          - type: string
+
+  provider:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - service_type
+      - instance_reference
+      - tenancy
+    properties:
+      name:
+        anyOf:
+          - type: "null"
+          - type: string
+            minLength: 1
+      service_type:
+        type: string
+        enum:
+          - virtual-machine
+          - containerized-pod
+          - bare-metal
+          - dedicated-host
+          - unknown
+      instance_reference:
+        description: >
+          Provider-generated instance or pod reference. This is metadata and must
+          not be used as the permanent hardware profile ID.
+        anyOf:
+          - type: "null"
+          - type: string
+      region:
+        anyOf:
+          - type: "null"
+          - type: string
+      availability_zone:
+        anyOf:
+          - type: "null"
+          - type: string
+      tenancy:
+        type: string
+        enum:
+          - shared
+          - dedicated
+          - unknown
+
+  host:
+    type: object
+    additionalProperties: false
+    required:
+      - operating_system
+      - kernel
+      - virtualization
+      - cpu
+      - memory
+      - storage
+    properties:
+      operating_system:
+        type: object
+        additionalProperties: false
+        required:
+          - distribution
+          - version
+          - image_identifier
+        properties:
+          distribution:
+            anyOf:
+              - type: "null"
+              - type: string
+          version:
+            anyOf:
+              - type: "null"
+              - type: string
+          image_identifier:
+            anyOf:
+              - type: "null"
+              - type: string
+
+      kernel:
+        type: object
+        additionalProperties: false
+        required:
+          - release
+          - architecture
+        properties:
+          release:
+            anyOf:
+              - type: "null"
+              - type: string
+          architecture:
+            type: string
+            enum:
+              - x86_64
+              - aarch64
+              - unknown
+
+      virtualization:
+        type: object
+        additionalProperties: false
+        required:
+          - detected
+          - hypervisor
+          - gpu_exposure_mode
+        properties:
+          detected:
+            type: boolean
+          hypervisor:
+            anyOf:
+              - type: "null"
+              - type: string
+          gpu_exposure_mode:
+            type: string
+            enum:
+              - native
+              - passthrough
+              - mediated
+              - shared
+              - unknown
+          guest_visibility_notes:
+            anyOf:
+              - type: "null"
+              - type: string
+
+      cpu:
+        type: object
+        additionalProperties: false
+        required:
+          - logical_cpu_count
+          - socket_count
+          - core_count
+          - numa_node_count
+          - model
+        properties:
+          logical_cpu_count:
+            anyOf:
+              - type: "null"
+              - type: integer
+                minimum: 1
+          socket_count:
+            anyOf:
+              - type: "null"
+              - type: integer
+                minimum: 1
+          core_count:
+            anyOf:
+              - type: "null"
+              - type: integer
+                minimum: 1
+          numa_node_count:
+            anyOf:
+              - type: "null"
+              - type: integer
+                minimum: 1
+          model:
+            anyOf:
+              - type: "null"
+              - type: string
+          topology_notes:
+            anyOf:
+              - type: "null"
+              - type: string
+
+      memory:
+        type: object
+        additionalProperties: false
+        required:
+          - total_bytes
+          - numa_distribution
+        properties:
+          total_bytes:
+            anyOf:
+              - type: "null"
+              - type: integer
+                minimum: 1
+          numa_distribution:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required:
+                - numa_node
+                - total_bytes
+              properties:
+                numa_node:
+                  type: integer
+                  minimum: 0
+                total_bytes:
+                  type: integer
+                  minimum: 1
+
+      storage:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - device
+            - size_bytes
+            - filesystem
+            - mountpoint
+          properties:
+            device:
+              anyOf:
+                - type: "null"
+                - type: string
+            size_bytes:
+              anyOf:
+                - type: "null"
+                - type: integer
+                  minimum: 1
+            filesystem:
+              anyOf:
+                - type: "null"
+                - type: string
+            mountpoint:
+              anyOf:
+                - type: "null"
+                - type: string
+
+  accelerator_inventory:
+    type: object
+    additionalProperties: false
+    required:
+      - vendor
+      - expected_count
+      - observed_count
+      - devices
+      - driver
+    properties:
+      vendor:
+        type: string
+        const: "nvidia"
+      expected_count:
+        type: integer
+        minimum: 1
+      observed_count:
+        anyOf:
+          - type: "null"
+          - type: integer
+            minimum: 0
+      devices:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - index
+            - uuid
+            - model
+            - architecture
+            - memory_bytes
+            - pci_bus_id
+            - numa_node
+            - mig
+            - ecc
+          properties:
+            index:
+              type: integer
+              minimum: 0
+            uuid:
+              anyOf:
+                - type: "null"
+                - type: string
+                  pattern: "^GPU-[A-Za-z0-9-]+$"
+            model:
+              anyOf:
+                - type: "null"
+                - type: string
+            architecture:
+              anyOf:
+                - type: "null"
+                - type: string
+            memory_bytes:
+              anyOf:
+                - type: "null"
+                - type: integer
+                  minimum: 1
+            pci_bus_id:
+              anyOf:
+                - type: "null"
+                - type: string
+                  pattern: "^[0-9A-Fa-f]{4}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}\\.[0-7]$"
+            numa_node:
+              anyOf:
+                - type: "null"
+                - type: integer
+                  minimum: 0
+            mig:
+              type: object
+              additionalProperties: false
+              required:
+                - supported
+                - enabled
+              properties:
+                supported:
+                  type: boolean
+                enabled:
+                  type: boolean
+            ecc:
+              type: object
+              additionalProperties: false
+              required:
+                - supported
+                - enabled
+                - volatile_uncorrected_errors
+                - aggregate_uncorrected_errors
+              properties:
+                supported:
+                  type: boolean
+                enabled:
+                  anyOf:
+                    - type: "null"
+                    - type: boolean
+                volatile_uncorrected_errors:
+                  anyOf:
+                    - type: "null"
+                    - type: integer
+                      minimum: 0
+                aggregate_uncorrected_errors:
+                  anyOf:
+                    - type: "null"
+                    - type: integer
+                      minimum: 0
+      driver:
+        type: object
+        additionalProperties: false
+        required:
+          - version
+          - cuda_compatibility
+          - gsp_firmware_version
+        properties:
+          version:
+            anyOf:
+              - type: "null"
+              - type: string
+          cuda_compatibility:
+            anyOf:
+              - type: "null"
+              - type: string
+          gsp_firmware_version:
+            anyOf:
+              - type: "null"
+              - type: string
+
+  topology:
+    type: object
+    additionalProperties: false
+    required:
+      - guest_visible_topology_authoritative
+      - gpu_pair_matrix
+      - nvlink
+      - pcie_peer_access
+      - topology_summary
+    properties:
+      guest_visible_topology_authoritative:
+        type: boolean
+        const: true
+      gpu_pair_matrix:
+        type: array
+        description: "One entry per unique GPU pair."
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - gpu_a
+            - gpu_b
+            - topo_relation
+            - nvlink_p2p
+            - pcie_p2p
+            - peer_read
+            - peer_write
+          properties:
+            gpu_a:
+              type: integer
+              minimum: 0
+            gpu_b:
+              type: integer
+              minimum: 0
+            topo_relation:
+              anyOf:
+                - type: "null"
+                - type: string
+                  enum:
+                    - PIX
+                    - PXB
+                    - PHB
+                    - NODE
+                    - SYS
+                    - NV1
+                    - NV2
+                    - NV3
+                    - NV4
+                    - NV5
+                    - NV6
+                    - NV7
+                    - NV8
+            nvlink_p2p:
+              type: string
+              enum:
+                - ok
+                - unavailable
+                - unsupported
+                - unknown
+            pcie_p2p:
+              type: string
+              enum:
+                - ok
+                - unavailable
+                - unsupported
+                - unknown
+            peer_read:
+              type: string
+              enum:
+                - ok
+                - unavailable
+                - unsupported
+                - unknown
+            peer_write:
+              type: string
+              enum:
+                - ok
+                - unavailable
+                - unsupported
+                - unknown
+      nvlink:
+        type: object
+        additionalProperties: false
+        required:
+          - expected
+          - exposed
+          - link_count
+          - active_link_count
+          - status
+        properties:
+          expected:
+            type: boolean
+          exposed:
+            anyOf:
+              - type: "null"
+              - type: boolean
+          link_count:
+            anyOf:
+              - type: "null"
+              - type: integer
+                minimum: 0
+          active_link_count:
+            anyOf:
+              - type: "null"
+              - type: integer
+                minimum: 0
+          status:
+            type: string
+            enum:
+              - active
+              - degraded
+              - unavailable
+              - unsupported
+              - unknown
+      pcie_peer_access:
+        type: object
+        additionalProperties: false
+        required:
+          - expected
+          - available
+          - status
+        properties:
+          expected:
+            type: boolean
+          available:
+            anyOf:
+              - type: "null"
+              - type: boolean
+          status:
+            type: string
+            enum:
+              - available
+              - partially-available
+              - unavailable
+              - unsupported
+              - unknown
+      topology_summary:
+        anyOf:
+          - type: "null"
+          - type: string
+
+  network:
+    type: object
+    additionalProperties: false
+    required:
+      - interfaces
+      - rdma
+      - gpu_nic_locality
+    properties:
+      interfaces:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - name
+            - mac_address
+            - state
+            - speed_mbps
+            - mtu
+            - pci_bus_id
+            - numa_node
+            - driver
+          properties:
+            name:
+              type: string
+              minLength: 1
+            mac_address:
+              anyOf:
+                - type: "null"
+                - type: string
+            state:
+              type: string
+              enum:
+                - up
+                - down
+                - unknown
+            speed_mbps:
+              anyOf:
+                - type: "null"
+                - type: integer
+                  minimum: 1
+            mtu:
+              anyOf:
+                - type: "null"
+                - type: integer
+                  minimum: 576
+            pci_bus_id:
+              anyOf:
+                - type: "null"
+                - type: string
+                  pattern: "^[0-9A-Fa-f]{4}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}\\.[0-7]$"
+            numa_node:
+              anyOf:
+                - type: "null"
+                - type: integer
+                  minimum: 0
+            driver:
+              anyOf:
+                - type: "null"
+                - type: string
+      rdma:
+        type: object
+        additionalProperties: false
+        required:
+          - expected
+          - device_visible
+          - transport
+          - link_state
+          - gpudirect_rdma
+        properties:
+          expected:
+            type: boolean
+          device_visible:
+            anyOf:
+              - type: "null"
+              - type: boolean
+          transport:
+            type: string
+            enum:
+              - infiniband
+              - roce
+              - none
+              - unknown
+          link_state:
+            type: string
+            enum:
+              - active
+              - down
+              - unavailable
+              - unknown
+          gpudirect_rdma:
+            type: string
+            enum:
+              - available
+              - unavailable
+              - unsupported
+              - not-tested
+              - unknown
+      gpu_nic_locality:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - gpu_index
+            - interface
+            - relation
+          properties:
+            gpu_index:
+              type: integer
+              minimum: 0
+            interface:
+              type: string
+            relation:
+              anyOf:
+                - type: "null"
+                - type: string
+
+  software_manifest:
+    type: object
+    additionalProperties: false
+    required:
+      - version_manifest_id
+      - path
+    properties:
+      version_manifest_id:
+        type: string
+        const: "versions-nvidia-gpu-cluster-operations-r01"
+      path:
+        type: string
+        const: "00-project-foundation/version-manifest.yaml"
+
+  qualification_references:
+    type: object
+    additionalProperties: false
+    required:
+      - qualification_profile_id
+      - latest_result_path
+    properties:
+      qualification_profile_id:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^qual-[a-z0-9]+-[1-9][0-9]*gpu-[a-z0-9-]+-v[0-9]+$"
+      latest_result_path:
+        anyOf:
+          - type: "null"
+          - type: string
+
+  evidence:
+    type: object
+    additionalProperties: false
+    required:
+      - root
+      - artifacts
+    properties:
+      root:
+        type: string
+      artifacts:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - evidence_type
+            - path
+            - sha256
+          properties:
+            evidence_type:
+              type: string
+              enum:
+                - host-inventory
+                - operating-system
+                - kernel
+                - virtualization
+                - cpu-topology
+                - memory-inventory
+                - gpu-inventory
+                - gpu-topology
+                - p2p-matrix
+                - nvlink-status
+                - network-inventory
+                - rdma-inventory
+                - other
+            path:
+              type: string
+              minLength: 1
+            sha256:
+              anyOf:
+                - type: "null"
+                - type: string
+                  pattern: "^[0-9a-f]{64}$"
+
+  operator_conclusion:
+    type: object
+    additionalProperties: false
+    required:
+      - inventory_summary
+      - exposed_capabilities
+      - limitations
+      - qualification_deferred
+    properties:
+      inventory_summary:
+        anyOf:
+          - type: "null"
+          - type: string
+      exposed_capabilities:
+        type: array
+        items:
+          type: string
+      limitations:
+        type: array
+        items:
+          type: string
+      qualification_deferred:
+        type: boolean
+      notes:
+        anyOf:
+          - type: "null"
+          - type: string

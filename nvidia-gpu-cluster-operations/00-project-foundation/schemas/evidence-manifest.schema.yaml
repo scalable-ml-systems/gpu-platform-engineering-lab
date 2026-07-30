@@ -1,0 +1,302 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://example.invalid/schemas/evidence-manifest.schema.yaml"
+title: "NVIDIA GPU Cluster Operations Evidence Manifest"
+description: >
+  Records the provenance, integrity, sensitivity, and repository location of
+  evidence collected for one experiment, qualification run, incident, or
+  remediation workflow. Raw artifacts are immutable after capture.
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - evidence_manifest_id
+  - project
+  - lifecycle
+  - context
+  - collection
+  - integrity
+  - sanitization
+  - retention
+  - artifacts
+  - operator_attestation
+properties:
+  schema_version:
+    type: string
+    const: "1.0"
+  evidence_manifest_id:
+    type: string
+    pattern: "^evidence-exp-[a-z0-9]+-[a-z0-9-]+-r[0-9]{2}-[0-9]{8}t[0-9]{6}z$"
+  project:
+    type: string
+    const: "nvidia-gpu-cluster-operations"
+  lifecycle:
+    type: object
+    additionalProperties: false
+    required: [status, revision]
+    properties:
+      status:
+        type: string
+        enum: [draft, collecting, sealed, superseded, invalid]
+      revision:
+        type: integer
+        minimum: 1
+      supersedes_manifest_id:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^evidence-exp-[a-z0-9]+-[a-z0-9-]+-r[0-9]{2}-[0-9]{8}t[0-9]{6}z$"
+  context:
+    type: object
+    additionalProperties: false
+    required:
+      - experiment_id
+      - run_id
+      - hardware_profile_id
+      - software_manifest_id
+      - qualification_profile_id
+      - workload_contract_id
+      - incident_id
+      - source_commit
+    properties:
+      experiment_id:
+        type: string
+        pattern: "^exp-[a-z0-9]+-[a-z0-9-]+-r[0-9]{2}$"
+      run_id:
+        type: string
+        pattern: "^run-exp-[a-z0-9]+-[a-z0-9-]+-r[0-9]{2}-[0-9]{8}t[0-9]{6}z$"
+      hardware_profile_id:
+        type: string
+        pattern: "^hw-[a-z0-9]+-[1-9][0-9]*gpu-[a-z0-9-]+-r[0-9]{2}$"
+      software_manifest_id:
+        type: string
+        const: "versions-nvidia-gpu-cluster-operations-r01"
+      qualification_profile_id:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^qual-[a-z0-9]+-[1-9][0-9]*gpu-[a-z0-9-]+-v[0-9]+$"
+      workload_contract_id:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^workload-[a-z0-9]+-[a-z0-9-]+-v[0-9]+$"
+      incident_id:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^inc-[0-9]{3}-[a-z0-9-]+$"
+      source_commit:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^[0-9a-f]{7,40}$"
+  collection:
+    type: object
+    additionalProperties: false
+    required:
+      - started_at_utc
+      - completed_at_utc
+      - collected_by
+      - collection_host
+      - collection_method
+      - clock_source
+    properties:
+      started_at_utc:
+        anyOf:
+          - type: "null"
+          - type: string
+            format: date-time
+      completed_at_utc:
+        anyOf:
+          - type: "null"
+          - type: string
+            format: date-time
+      collected_by:
+        anyOf:
+          - type: "null"
+          - type: string
+      collection_host:
+        anyOf:
+          - type: "null"
+          - type: string
+      collection_method:
+        type: string
+        enum: [shell-script, kubernetes-job, kubectl-export, prometheus-query, grafana-export, application-export, manual-capture, mixed]
+      clock_source:
+        type: string
+        enum: [host-utc, kubernetes-node-utc, prometheus-utc, mixed-utc]
+      commands_reference:
+        anyOf:
+          - type: "null"
+          - type: string
+  integrity:
+    type: object
+    additionalProperties: false
+    required: [hash_algorithm, manifest_sha256, sealed_at_utc, immutable_after_seal]
+    properties:
+      hash_algorithm:
+        type: string
+        const: sha256
+      manifest_sha256:
+        anyOf:
+          - type: "null"
+          - type: string
+            pattern: "^[0-9a-f]{64}$"
+      sealed_at_utc:
+        anyOf:
+          - type: "null"
+          - type: string
+            format: date-time
+      immutable_after_seal:
+        type: boolean
+        const: true
+  sanitization:
+    type: object
+    additionalProperties: false
+    required: [review_status, secrets_removed, personal_data_removed, provider_identifiers_reviewed, redactions]
+    properties:
+      review_status:
+        type: string
+        enum: [not-reviewed, reviewed, failed]
+      secrets_removed:
+        type: boolean
+      personal_data_removed:
+        type: boolean
+      provider_identifiers_reviewed:
+        type: boolean
+      redactions:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [artifact_path, category, replacement, reason]
+          properties:
+            artifact_path: {type: string}
+            category:
+              type: string
+              enum: [credential, token, private-key, internal-ip, public-ip, user-name, provider-instance-id, account-id, personal-data, other]
+            replacement: {type: string}
+            reason: {type: string}
+  retention:
+    type: object
+    additionalProperties: false
+    required: [repository_policy, raw_artifact_policy, external_archive]
+    properties:
+      repository_policy:
+        type: string
+        enum: [commit-sanitized-small-artifacts, commit-normalized-only, do-not-commit]
+      raw_artifact_policy:
+        type: string
+        enum: [retain-in-repository, retain-compressed, retain-external, delete-after-normalization]
+      external_archive:
+        anyOf:
+          - type: "null"
+          - type: object
+            additionalProperties: false
+            required: [location_reference, checksum_manifest_path]
+            properties:
+              location_reference: {type: string}
+              checksum_manifest_path: {type: string}
+  artifacts:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - artifact_id
+        - artifact_type
+        - evidence_class
+        - path
+        - media_type
+        - captured_at_utc
+        - size_bytes
+        - sha256
+        - immutable
+        - sanitized
+        - source
+      properties:
+        artifact_id:
+          type: string
+          pattern: "^artifact-[0-9]{3}-[a-z0-9-]+$"
+        artifact_type:
+          type: string
+          enum: [command-output, kubernetes-state, application-log, system-log, metrics-export, dashboard-snapshot, manifest, config, normalized-result, operator-notes, incident-timeline, architecture-diagram, other]
+        evidence_class:
+          type: string
+          enum: [raw, normalized, derived, interpretive]
+        path: {type: string, minLength: 1}
+        media_type: {type: string, minLength: 1}
+        captured_at_utc:
+          anyOf:
+            - type: "null"
+            - type: string
+              format: date-time
+        size_bytes:
+          anyOf:
+            - type: "null"
+            - type: integer
+              minimum: 0
+        sha256:
+          anyOf:
+            - type: "null"
+            - type: string
+              pattern: "^[0-9a-f]{64}$"
+        immutable: {type: boolean}
+        sanitized: {type: boolean}
+        source:
+          type: object
+          additionalProperties: false
+          required: [producer, command_or_query, kubernetes_resource]
+          properties:
+            producer: {type: string}
+            command_or_query:
+              anyOf:
+                - type: "null"
+                - type: string
+            kubernetes_resource:
+              anyOf:
+                - type: "null"
+                - type: object
+                  additionalProperties: false
+                  required: [kind, name, namespace]
+                  properties:
+                    kind: {type: string}
+                    name: {type: string}
+                    namespace:
+                      anyOf:
+                        - type: "null"
+                        - type: string
+        derived_from:
+          type: array
+          items:
+            type: string
+            pattern: "^artifact-[0-9]{3}-[a-z0-9-]+$"
+        notes:
+          anyOf:
+            - type: "null"
+            - type: string
+  operator_attestation:
+    type: object
+    additionalProperties: false
+    required: [reviewed, reviewed_by, reviewed_at_utc, evidence_complete, evidence_consistent, limitations]
+    properties:
+      reviewed: {type: boolean}
+      reviewed_by:
+        anyOf:
+          - type: "null"
+          - type: string
+      reviewed_at_utc:
+        anyOf:
+          - type: "null"
+          - type: string
+            format: date-time
+      evidence_complete: {type: boolean}
+      evidence_consistent: {type: boolean}
+      limitations:
+        type: array
+        items: {type: string}
+      attestation:
+        anyOf:
+          - type: "null"
+          - type: string

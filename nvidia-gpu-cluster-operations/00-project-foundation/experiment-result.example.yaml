@@ -1,0 +1,105 @@
+schema_version: "1.0"
+experiment_id: "exp-nccl-allreduce-4gpu-r01"
+run_id: "run-exp-nccl-allreduce-4gpu-r01-20260729t201600z"
+project: "nvidia-gpu-cluster-operations"
+
+lifecycle:
+  status: "draft"
+  revision: 1
+  supersedes_run_id: null
+
+timing:
+  started_at_utc: null
+  completed_at_utc: null
+  duration_seconds: null
+
+context:
+  phase: "phase-2-gpu-network-qualification"
+  domain: "nccl"
+  hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+  software_manifest_id: "versions-nvidia-gpu-cluster-operations-r01"
+  qualification_profile_id: "qual-rtx4090-4gpu-pcie-v1"
+  workload_contract_id: "workload-nccl-collective-heavy-v1"
+  source_commit: null
+  namespace: "gpu-operations"
+  kubernetes_resource:
+    kind: "Job"
+    name: "gpu-ops-nccl-qualification-4gpu"
+    uid: null
+
+objective: >
+  Measure four-GPU NCCL AllReduce correctness, selected transport, and bus
+  bandwidth on the RTX 4090 hardware profile.
+
+hypothesis:
+  statement: >
+    The four RTX 4090 GPUs can complete NCCL AllReduce and expose a repeatable
+    PCIe collective baseline.
+  expected_result: >
+    The collective completes with zero correctness errors and produces a stable
+    bus-bandwidth measurement for the hardware profile.
+  falsification_condition: >
+    The collective fails, reports correctness errors, or varies beyond the
+    repeatability tolerance defined by the qualification profile.
+
+execution:
+  execution_mode: "kubernetes-job"
+  command_or_manifest:
+    - "02-gpu-network-qualification/manifests/job-nccl-qualification-4gpu.yaml"
+  parameters:
+    gpu_count: 4
+    min_message_size_bytes: 8388608
+    max_message_size_bytes: 1073741824
+    datatype: "float"
+    reduction: "sum"
+  prerequisites:
+    - "RTX 4090 hardware profile discovered"
+    - "NVIDIA device plugin reports four allocatable GPUs"
+    - "NCCL qualification image digest recorded"
+  safety_controls:
+    - "No destructive host changes"
+    - "Qualification Job has bounded runtime"
+    - "Raw output is captured before normalization"
+  retry_count: 0
+
+observations:
+  expected:
+    - "Four NCCL ranks initialize"
+    - "AllReduce completes"
+    - "Out-of-bounds count is zero"
+  observed: []
+  deviations: []
+  warnings: []
+  errors: []
+
+metrics: []
+
+verdict:
+  result: "inconclusive"
+  criteria:
+    - criterion: "All four ranks initialize successfully"
+      result: "not-evaluated"
+      evidence_reference: null
+    - criterion: "Collective correctness reports zero errors"
+      result: "not-evaluated"
+      evidence_reference: null
+    - criterion: "Bus bandwidth is captured"
+      result: "not-evaluated"
+      evidence_reference: null
+  failure_class: null
+  confidence: "low"
+  invalidation_reason: null
+
+evidence:
+  root: "results/rtx4090/exp-nccl-allreduce-4gpu-r01"
+  artifacts: []
+
+operator_conclusion:
+  summary: null
+  operational_impact: null
+  next_action: null
+  production_caveats:
+    - "Results apply only to the recorded hardware and software profiles."
+    - "A successful collective does not prove NVLink or P2P exposure."
+
+approvals: []

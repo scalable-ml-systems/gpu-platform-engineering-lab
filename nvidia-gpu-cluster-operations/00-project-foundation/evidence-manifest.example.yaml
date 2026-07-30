@@ -1,0 +1,94 @@
+schema_version: "1.0"
+evidence_manifest_id: "evidence-exp-nccl-allreduce-4gpu-r01-20260729t201600z"
+project: "nvidia-gpu-cluster-operations"
+
+lifecycle:
+  status: "draft"
+  revision: 1
+  supersedes_manifest_id: null
+
+context:
+  experiment_id: "exp-nccl-allreduce-4gpu-r01"
+  run_id: "run-exp-nccl-allreduce-4gpu-r01-20260729t201600z"
+  hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+  software_manifest_id: "versions-nvidia-gpu-cluster-operations-r01"
+  qualification_profile_id: "qual-rtx4090-4gpu-pcie-v1"
+  workload_contract_id: "workload-nccl-collective-heavy-v1"
+  incident_id: null
+  source_commit: null
+
+collection:
+  started_at_utc: null
+  completed_at_utc: null
+  collected_by: null
+  collection_host: null
+  collection_method: "kubernetes-job"
+  clock_source: "mixed-utc"
+  commands_reference: "02-gpu-network-qualification/manifests/job-nccl-qualification-4gpu.yaml"
+
+integrity:
+  hash_algorithm: "sha256"
+  manifest_sha256: null
+  sealed_at_utc: null
+  immutable_after_seal: true
+
+sanitization:
+  review_status: "not-reviewed"
+  secrets_removed: false
+  personal_data_removed: false
+  provider_identifiers_reviewed: false
+  redactions: []
+
+retention:
+  repository_policy: "commit-sanitized-small-artifacts"
+  raw_artifact_policy: "retain-compressed"
+  external_archive: null
+
+artifacts:
+  - artifact_id: "artifact-001-nccl-log"
+    artifact_type: "application-log"
+    evidence_class: "raw"
+    path: "raw/exp-nccl-allreduce-4gpu-r01--nccl-log--raw.txt"
+    media_type: "text/plain"
+    captured_at_utc: null
+    size_bytes: null
+    sha256: null
+    immutable: true
+    sanitized: false
+    source:
+      producer: "nccl-tests all_reduce_perf"
+      command_or_query: null
+      kubernetes_resource:
+        kind: "Job"
+        name: "gpu-ops-nccl-qualification-4gpu"
+        namespace: "gpu-operations"
+    derived_from: []
+    notes: "Raw NCCL Job output."
+
+  - artifact_id: "artifact-002-result"
+    artifact_type: "normalized-result"
+    evidence_class: "normalized"
+    path: "normalized/exp-nccl-allreduce-4gpu-r01--result.yaml"
+    media_type: "application/yaml"
+    captured_at_utc: null
+    size_bytes: null
+    sha256: null
+    immutable: true
+    sanitized: false
+    source:
+      producer: "experiment result normalizer"
+      command_or_query: null
+      kubernetes_resource: null
+    derived_from:
+      - "artifact-001-nccl-log"
+    notes: "Normalized result derived from raw NCCL output."
+
+operator_attestation:
+  reviewed: false
+  reviewed_by: null
+  reviewed_at_utc: null
+  evidence_complete: false
+  evidence_consistent: false
+  limitations:
+    - "Template only; no RTX 4090 experiment has run."
+  attestation: null
