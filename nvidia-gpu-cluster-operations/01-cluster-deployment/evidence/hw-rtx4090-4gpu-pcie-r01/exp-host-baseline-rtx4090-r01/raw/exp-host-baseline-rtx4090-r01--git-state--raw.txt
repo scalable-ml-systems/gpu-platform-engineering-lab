@@ -1,0 +1,9 @@
+# captured_at_utc: 2026-07-30T15:12:23Z
+# hostname: riftvm
+# command: git rev-parse HEAD && git branch --show-current && git status --short
+
+527ca7871383c4c0b53a343354db962f53183120
+main
+?? 01-cluster-deployment/
+
+# exit_code: 0

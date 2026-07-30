@@ -1,0 +1,9 @@
+# captured_at_utc: 2026-07-30T16:00:46Z
+# hostname: riftvm
+# command: modinfo nvidia 2>/dev/null | grep -E '^(filename|version|vermagic):' || true
+
+filename:       /lib/modules/6.8.0-134-generic/updates/dkms/nvidia.ko.zst
+version:        580.159.03
+vermagic:       6.8.0-134-generic SMP preempt mod_unload modversions 
+
+# exit_code: 0

@@ -1,0 +1,20 @@
+# captured_at_utc: 2026-07-30T15:12:16Z
+# hostname: riftvm
+# command: ip route show table all
+
+default via 10.21.106.254 dev enp1s0 proto static 
+10.21.106.0/24 dev enp1s0 proto kernel scope link src 10.21.106.103 
+172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
+local 10.21.106.103 dev enp1s0 table local proto kernel scope host src 10.21.106.103 
+broadcast 10.21.106.255 dev enp1s0 table local proto kernel scope link src 10.21.106.103 
+local 127.0.0.0/8 dev lo table local proto kernel scope host src 127.0.0.1 
+local 127.0.0.1 dev lo table local proto kernel scope host src 127.0.0.1 
+broadcast 127.255.255.255 dev lo table local proto kernel scope link src 127.0.0.1 
+local 172.17.0.1 dev docker0 table local proto kernel scope host src 172.17.0.1 
+broadcast 172.17.255.255 dev docker0 table local proto kernel scope link src 172.17.0.1 linkdown 
+fe80::/64 dev enp1s0 proto kernel metric 256 pref medium
+local ::1 dev lo table local proto kernel metric 0 pref medium
+local fe80::3c1d:56ff:fe71:9714 dev enp1s0 table local proto kernel metric 0 pref medium
+multicast ff00::/8 dev enp1s0 table local proto kernel metric 256 pref medium
+
+# exit_code: 0

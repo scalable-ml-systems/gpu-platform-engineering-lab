@@ -1,0 +1,24 @@
+# captured_at_utc: 2026-07-30T15:12:16Z
+# hostname: riftvm
+# command: lsblk -b -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS,MODEL && printf '\nFilesystems:\n' && df -B1 -T
+
+NAME             SIZE TYPE FSTYPE  MOUNTPOINTS MODEL
+sr0            376832 rom  iso9660             QEMU DVD-ROM
+vda     3006477107200 disk                     
+├─vda1  3005402299904 part ext4    /           
+├─vda14       4194304 part                     
+├─vda15     111149056 part vfat    /boot/efi   
+└─vda16     957350400 part ext4    /boot       
+
+Filesystems:
+Filesystem     Type         1B-blocks        Used     Available Use% Mounted on
+tmpfs          tmpfs      19731767296     1339392   19730427904   1% /run
+efivarfs       efivarfs        262044       18256        238668   8% /sys/firmware/efi/efivars
+/dev/vda1      ext4     2911210684416 14092718080 2897101189120   1% /
+tmpfs          tmpfs      98658828288           0   98658828288   0% /dev/shm
+tmpfs          tmpfs          5242880           0       5242880   0% /run/lock
+/dev/vda16     ext4         923156480    64401408     794112000   8% /boot
+/dev/vda15     vfat         109395456     8716800     100678656   8% /boot/efi
+tmpfs          tmpfs      19731763200       20480   19731742720   1% /run/user/1000
+
+# exit_code: 0

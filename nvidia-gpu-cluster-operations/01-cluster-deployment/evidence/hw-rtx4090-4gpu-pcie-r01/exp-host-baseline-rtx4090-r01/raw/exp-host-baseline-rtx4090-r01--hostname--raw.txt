@@ -1,0 +1,20 @@
+# captured_at_utc: 2026-07-30T15:12:15Z
+# hostname: riftvm
+# command: hostnamectl 2>/dev/null || hostname
+
+ Static hostname: riftvm
+       Icon name: computer-vm
+         Chassis: vm 🖴
+      Machine ID: 446a98bcafff4b2d9aaeab85c1a9bd40
+         Boot ID: 277f4bb7a8504d8bae6a7832b548485b
+  Virtualization: kvm
+Operating System: Ubuntu 24.04.1 LTS
+          Kernel: Linux 6.8.0-134-generic
+    Architecture: x86-64
+ Hardware Vendor: QEMU
+  Hardware Model: Standard PC _Q35 + ICH9, 2009_
+Firmware Version: 0.0.0
+   Firmware Date: Fri 2015-02-06
+    Firmware Age: 11y 5month 3w 1d
+
+# exit_code: 0

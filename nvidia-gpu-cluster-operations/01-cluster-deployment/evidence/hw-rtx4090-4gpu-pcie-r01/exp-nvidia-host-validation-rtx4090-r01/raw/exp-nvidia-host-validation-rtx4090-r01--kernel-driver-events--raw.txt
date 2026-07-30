@@ -1,0 +1,19 @@
+# captured_at_utc: 2026-07-30T16:00:50Z
+# hostname: riftvm
+# command: sudo dmesg -T | grep -iE 'NVRM|Xid|fallen off|nvidia|nouveau' || true
+
+[Thu Jul 30 14:27:31 2026] Command line: BOOT_IMAGE=/vmlinuz-6.8.0-134-generic root=UUID=ef43644d-1314-401f-a83c-5323ff539f61 ro module_blacklist=nvidia_drm,nvidia_modeset nouveau.modeset=0 pci=realloc pci=pcie_bus_perf console=tty1 console=ttyS0 module_blacklist=nvidia_drm,nvidia_modeset nouveau.modeset=0 pci=realloc pci=pcie_bus_perf
+[Thu Jul 30 14:27:31 2026] Kernel command line: BOOT_IMAGE=/vmlinuz-6.8.0-134-generic root=UUID=ef43644d-1314-401f-a83c-5323ff539f61 ro module_blacklist=nvidia_drm,nvidia_modeset nouveau.modeset=0 pci=realloc pci=pcie_bus_perf console=tty1 console=ttyS0 module_blacklist=nvidia_drm,nvidia_modeset nouveau.modeset=0 pci=realloc pci=pcie_bus_perf
+[Thu Jul 30 14:27:38 2026] nvidia: loading out-of-tree module taints kernel.
+[Thu Jul 30 14:27:38 2026] nvidia: module verification failed: signature and/or required key missing - tainting kernel
+[Thu Jul 30 14:27:38 2026] nvidia: unknown parameter 'NvLinkDisable' ignored
+[Thu Jul 30 14:27:38 2026] nvidia-nvlink: Nvlink Core is being initialized, major device number 238
+[Thu Jul 30 14:27:38 2026] nvidia 0000:00:10.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=io+mem
+[Thu Jul 30 14:27:38 2026] nvidia 0000:00:11.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=io+mem
+[Thu Jul 30 14:27:38 2026] nvidia 0000:00:12.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=io+mem
+[Thu Jul 30 14:27:38 2026] nvidia 0000:00:13.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=io+mem
+[Thu Jul 30 14:27:38 2026] NVRM: loading NVIDIA UNIX Open Kernel Module for x86_64  580.159.03  Release Build  (dvs-builder@U22-I3-AM27-29-6)  Fri Apr 24 06:03:03 UTC 2026
+[Thu Jul 30 14:27:38 2026] Module nvidia_modeset is blacklisted
+[Thu Jul 30 14:27:38 2026] Module nvidia_modeset is blacklisted
+
+# exit_code: 0

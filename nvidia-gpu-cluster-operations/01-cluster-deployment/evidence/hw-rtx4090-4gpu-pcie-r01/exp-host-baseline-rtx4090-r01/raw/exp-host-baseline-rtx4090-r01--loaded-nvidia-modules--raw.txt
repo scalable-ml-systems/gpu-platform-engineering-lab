@@ -1,0 +1,8 @@
+# captured_at_utc: 2026-07-30T15:12:22Z
+# hostname: riftvm
+# command: lsmod | grep -E '^nvidia|^nouveau' || true
+
+nvidia_uvm           2158592  0
+nvidia              14413824  1 nvidia_uvm
+
+# exit_code: 0

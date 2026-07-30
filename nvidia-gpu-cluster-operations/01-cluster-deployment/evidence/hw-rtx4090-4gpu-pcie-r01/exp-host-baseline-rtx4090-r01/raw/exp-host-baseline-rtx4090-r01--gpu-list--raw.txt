@@ -1,0 +1,10 @@
+# captured_at_utc: 2026-07-30T15:12:16Z
+# hostname: riftvm
+# command: nvidia-smi -L
+
+GPU 0: NVIDIA GeForce RTX 4090 (UUID: GPU-81d79c00-868e-3ec5-2948-745283b756f6)
+GPU 1: NVIDIA GeForce RTX 4090 (UUID: GPU-9d76fed8-657a-b0f6-ca3e-839659fb27de)
+GPU 2: NVIDIA GeForce RTX 4090 (UUID: GPU-7f281477-d32e-c561-2335-e55cdbea3a01)
+GPU 3: NVIDIA GeForce RTX 4090 (UUID: GPU-8a273bee-0c03-d08a-548d-0ee90d858342)
+
+# exit_code: 0

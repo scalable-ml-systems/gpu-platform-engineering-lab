@@ -1,0 +1,21 @@
+schema_version: "1.0"
+experiment_id: "exp-nvidia-host-validation-rtx4090-r01"
+hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+
+observed:
+  gpu_count: 4
+  gpu_model: "NVIDIA RTX 4090"
+  driver_branch: "R580"
+
+checks:
+  nvidia_smi: pending-review
+  gpu_count: pending-review
+  gpu_model_consistency: pending-review
+  driver_branch: pending-review
+  kernel_modules: pending-review
+  nouveau_absent: pending-review
+  device_files: pending-review
+  xid_errors_absent: pending-review
+
+verdict: pending-review
+operator_conclusion: null

@@ -1,0 +1,14 @@
+# captured_at_utc: 2026-07-30T15:12:16Z
+# hostname: riftvm
+# command: ip -details -brief link && printf '\nAddresses:\n' && ip -brief address
+
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+enp1s0           UP             3e:1d:56:71:97:14 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+docker0          DOWN           26:3b:e2:fc:3b:11 <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+
+Addresses:
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+enp1s0           UP             10.21.106.103/24 fe80::3c1d:56ff:fe71:9714/64 
+docker0          DOWN           172.17.0.1/16 
+
+# exit_code: 0

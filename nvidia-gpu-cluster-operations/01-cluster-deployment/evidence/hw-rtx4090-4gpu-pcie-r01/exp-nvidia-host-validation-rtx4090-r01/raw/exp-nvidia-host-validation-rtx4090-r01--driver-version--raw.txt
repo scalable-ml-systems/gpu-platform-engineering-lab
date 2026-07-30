@@ -1,0 +1,8 @@
+# captured_at_utc: 2026-07-30T16:00:46Z
+# hostname: riftvm
+# command: cat /proc/driver/nvidia/version
+
+NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  580.159.03  Release Build  (dvs-builder@U22-I3-AM27-29-6)  Fri Apr 24 06:03:03 UTC 2026
+GCC version:  gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 
+
+# exit_code: 0

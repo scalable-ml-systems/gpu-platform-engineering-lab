@@ -1,0 +1,10 @@
+# captured_at_utc: 2026-07-30T15:12:23Z
+# hostname: riftvm
+# command: command -v docker || true; command -v containerd || true; command -v ctr || true; command -v crictl || true; command -v nvidia-ctk || true
+
+/usr/bin/docker
+/usr/bin/containerd
+/usr/bin/ctr
+/usr/bin/nvidia-ctk
+
+# exit_code: 0

@@ -1,0 +1,14 @@
+# captured_at_utc: 2026-07-30T16:00:50Z
+# hostname: riftvm
+# command: command -v nvidia-smi || true
+     command -v nvidia-ctk || true
+     command -v nvcc || true
+     command -v containerd || true
+     command -v docker || true
+
+/usr/bin/nvidia-smi
+/usr/bin/nvidia-ctk
+/usr/bin/containerd
+/usr/bin/docker
+
+# exit_code: 0

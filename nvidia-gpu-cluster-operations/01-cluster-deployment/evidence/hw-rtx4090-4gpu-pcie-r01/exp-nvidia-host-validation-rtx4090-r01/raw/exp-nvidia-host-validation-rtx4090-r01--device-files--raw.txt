@@ -1,0 +1,13 @@
+# captured_at_utc: 2026-07-30T16:00:46Z
+# hostname: riftvm
+# command: ls -la /dev/nvidia* 2>/dev/null || true
+
+crw-rw-rw- 1 root root 236,   0 Jul 30  2026 /dev/nvidia-uvm
+crw-rw-rw- 1 root root 236,   1 Jul 30  2026 /dev/nvidia-uvm-tools
+crw-rw-rw- 1 root root 195,   0 Jul 30  2026 /dev/nvidia0
+crw-rw-rw- 1 root root 195,   1 Jul 30  2026 /dev/nvidia1
+crw-rw-rw- 1 root root 195,   2 Jul 30  2026 /dev/nvidia2
+crw-rw-rw- 1 root root 195,   3 Jul 30  2026 /dev/nvidia3
+crw-rw-rw- 1 root root 195, 255 Jul 30  2026 /dev/nvidiactl
+
+# exit_code: 0

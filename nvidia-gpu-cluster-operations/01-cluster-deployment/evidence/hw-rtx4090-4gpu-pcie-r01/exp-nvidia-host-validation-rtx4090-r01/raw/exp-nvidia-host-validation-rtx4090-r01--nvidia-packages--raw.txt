@@ -1,0 +1,73 @@
+# captured_at_utc: 2026-07-30T16:00:50Z
+# hostname: riftvm
+# command: dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null       | grep -E '^(nvidia|libnvidia|cuda|containerd|docker)'       | sort || true
+
+containerd.io	2.2.6-1~ubuntu.24.04~noble
+cuda-cccl-12-9	12.9.27-1
+cuda-command-line-tools-12-9	12.9.2-1
+cuda-compiler-12-9	12.9.2-1
+cuda-crt-12-9	12.9.86-1
+cuda-cudart-12-9	12.9.79-1
+cuda-cudart-dev-12-9	12.9.79-1
+cuda-cuobjdump-12-9	12.9.82-1
+cuda-cupti-12-9	12.9.79-1
+cuda-cupti-dev-12-9	12.9.79-1
+cuda-cuxxfilt-12-9	12.9.82-1
+cuda-documentation-12-9	12.9.88-1
+cuda-driver-dev-12-9	12.9.79-1
+cuda-gdb-12-9	12.9.79-1
+cuda-keyring	1.1-1
+cuda-libraries-12-9	12.9.2-1
+cuda-libraries-dev-12-9	12.9.2-1
+cuda-nsight-12-9	12.9.79-1
+cuda-nsight-compute-12-9	12.9.2-1
+cuda-nsight-systems-12-9	12.9.2-1
+cuda-nvcc-12-9	12.9.86-1
+cuda-nvdisasm-12-9	12.9.88-1
+cuda-nvml-dev-12-9	12.9.79-1
+cuda-nvprof-12-9	12.9.79-1
+cuda-nvprune-12-9	12.9.82-1
+cuda-nvrtc-12-9	12.9.86-1
+cuda-nvrtc-dev-12-9	12.9.86-1
+cuda-nvtx-12-9	12.9.79-1
+cuda-nvvm-12-9	12.9.86-1
+cuda-nvvp-12-9	12.9.79-1
+cuda-opencl-12-9	12.9.19-1
+cuda-profiler-api-12-9	12.9.79-1
+cuda-sandbox-dev-12-9	12.9.19-1
+cuda-sanitizer-12-9	12.9.79-1
+cuda-toolkit-12-9	12.9.2-1
+cuda-toolkit-12-9-config-common	12.9.79-1
+cuda-toolkit-12-config-common	12.9.79-1
+cuda-toolkit-config-common	13.3.29-1
+cuda-tools-12-9	12.9.2-1
+cuda-visual-tools-12-9	12.9.2-1
+docker-buildx-plugin	0.35.0-1~ubuntu.24.04~noble
+docker-ce	5:29.6.1-1~ubuntu.24.04~noble
+docker-ce-cli	5:29.6.1-1~ubuntu.24.04~noble
+docker-ce-rootless-extras	5:29.6.1-1~ubuntu.24.04~noble
+docker-compose-plugin	5.3.1-1~ubuntu.24.04~noble
+libnvidia-cfg1-580-server	580.159.03-0ubuntu0.24.04.1
+libnvidia-common-580-server	580.159.03-0ubuntu0.24.04.1
+libnvidia-compute-580-server	580.159.03-0ubuntu0.24.04.1
+libnvidia-container-tools	1.19.1-1
+libnvidia-container1	1.19.1-1
+libnvidia-decode-580-server	580.159.03-0ubuntu0.24.04.1
+libnvidia-egl-wayland1	1:1.1.13-1ubuntu0.1
+libnvidia-encode-580-server	580.159.03-0ubuntu0.24.04.1
+libnvidia-extra-580-server	580.159.03-0ubuntu0.24.04.1
+libnvidia-fbc1-580-server	580.159.03-0ubuntu0.24.04.1
+libnvidia-gl-580-server	580.159.03-0ubuntu0.24.04.1
+nvidia-compute-utils-580-server	580.159.03-0ubuntu0.24.04.1
+nvidia-container-toolkit	1.19.1-1
+nvidia-container-toolkit-base	1.19.1-1
+nvidia-dkms-580-server-open	580.159.03-0ubuntu0.24.04.1
+nvidia-driver-580-server-open	580.159.03-0ubuntu0.24.04.1
+nvidia-firmware-580-server-580.159.03	580.159.03-0ubuntu0.24.04.1
+nvidia-kernel-common-580-server	580.159.03-0ubuntu0.24.04.1
+nvidia-kernel-source-580-server-open	580.159.03-0ubuntu0.24.04.1
+nvidia-prime	0.8.17.2
+nvidia-settings	510.47.03-0ubuntu4.24.04.1
+nvidia-utils-580-server	580.159.03-0ubuntu0.24.04.1
+
+# exit_code: 0

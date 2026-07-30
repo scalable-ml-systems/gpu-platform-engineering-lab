@@ -1,0 +1,13 @@
+# captured_at_utc: 2026-07-30T15:12:16Z
+# hostname: riftvm
+# command: if command -v numactl >/dev/null 2>&1; then numactl --hardware; else echo 'numactl not installed'; fi
+
+available: 1 nodes (0)
+node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+node 0 size: 188176 MB
+node 0 free: 186599 MB
+node distances:
+node   0 
+  0:  10 
+
+# exit_code: 0

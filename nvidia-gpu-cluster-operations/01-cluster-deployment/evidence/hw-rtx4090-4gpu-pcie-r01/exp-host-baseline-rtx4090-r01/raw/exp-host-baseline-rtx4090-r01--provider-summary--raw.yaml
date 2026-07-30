@@ -1,0 +1,11 @@
+provider: cloudrift
+provider_resource_reference: rtx49-10c-kn.4
+
+declared_capacity:
+  gpu_model: NVIDIA RTX 4090
+  gpu_count: 4
+  memory_gib_per_gpu: 24
+  host_memory_gib: 187.5
+  vcpu_count: 28
+
+capture_status: provider-declared-not-yet-verified

@@ -1,0 +1,66 @@
+# captured_at_utc: 2026-07-30T15:12:16Z
+# hostname: riftvm
+# command: free -b && printf '\n/proc/meminfo:\n' && cat /proc/meminfo
+
+               total        used        free      shared  buff/cache   available
+Mem:     197317656576  2011807744 195670085632     3276800  1179529216 195305848832
+Swap:              0           0           0
+
+/proc/meminfo:
+MemTotal:       192693024 kB
+MemFree:        191084068 kB
+MemAvailable:   190728368 kB
+Buffers:          220676 kB
+Cached:           884696 kB
+SwapCached:            0 kB
+Active:           424628 kB
+Inactive:         752280 kB
+Active(anon):      83488 kB
+Inactive(anon):        0 kB
+Active(file):     341140 kB
+Inactive(file):   752280 kB
+Unevictable:       29160 kB
+Mlocked:           27284 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Zswap:                 0 kB
+Zswapped:              0 kB
+Dirty:                 0 kB
+Writeback:             0 kB
+AnonPages:        100200 kB
+Mapped:           144404 kB
+Shmem:              3200 kB
+KReclaimable:      46512 kB
+Slab:             179068 kB
+SReclaimable:      46512 kB
+SUnreclaim:       132556 kB
+KernelStack:        8408 kB
+PageTables:         3176 kB
+SecPageTables:         0 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:    96346512 kB
+Committed_AS:     659184 kB
+VmallocTotal:   13743895347199 kB
+VmallocUsed:       64268 kB
+VmallocChunk:          0 kB
+Percpu:            15008 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+FileHugePages:         0 kB
+FilePmdMapped:         0 kB
+Unaccepted:            0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+DirectMap4k:      226400 kB
+DirectMap2M:     5009408 kB
+DirectMap1G:    192937984 kB
+
+# exit_code: 0
