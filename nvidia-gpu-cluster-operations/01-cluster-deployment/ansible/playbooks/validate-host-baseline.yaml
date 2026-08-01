@@ -1,0 +1,94 @@
+---
+- name: Validate host baseline
+  hosts: gpu_nodes
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Read active swap entries
+      ansible.builtin.command: swapon --noheadings --show
+      register: swap_state
+      changed_when: false
+
+    - name: Assert swap is disabled
+      ansible.builtin.assert:
+        that:
+          - swap_state.stdout | trim == ""
+        fail_msg: "Swap is still active."
+
+    - name: Read loaded kernel modules
+      ansible.builtin.command: lsmod
+      register: loaded_modules
+      changed_when: false
+
+    - name: Assert required kernel modules are loaded
+      ansible.builtin.assert:
+        that:
+          - item in loaded_modules.stdout
+        fail_msg: "Kernel module {{ item }} is not loaded."
+      loop:
+        - overlay
+        - br_netfilter
+
+    - name: Read required sysctl values
+      ansible.builtin.command: "sysctl -n {{ item.key }}"
+      register: sysctl_values
+      changed_when: false
+      loop:
+        - { key: "net.bridge.bridge-nf-call-iptables", expected: "1" }
+        - { key: "net.bridge.bridge-nf-call-ip6tables", expected: "1" }
+        - { key: "net.ipv4.ip_forward", expected: "1" }
+
+    - name: Assert required sysctl values
+      ansible.builtin.assert:
+        that:
+          - item.stdout | trim == item.item.expected
+        fail_msg: >-
+          {{ item.item.key }} expected {{ item.item.expected }},
+          observed {{ item.stdout | trim }}.
+      loop: "{{ sysctl_values.results }}"
+
+    - name: Query GPU list
+      ansible.builtin.command: nvidia-smi -L
+      register: gpu_list
+      changed_when: false
+
+    - name: Assert expected GPU count
+      ansible.builtin.assert:
+        that:
+          - >-
+            gpu_list.stdout_lines
+            | select('match', '^GPU ')
+            | list
+            | length
+            == host_baseline_expected_gpu_count
+        fail_msg: >-
+          Expected {{ host_baseline_expected_gpu_count }} GPUs.
+          Observed output: {{ gpu_list.stdout }}
+
+    - name: Assert expected GPU model
+      ansible.builtin.assert:
+        that:
+          - gpu_list.stdout is search(host_baseline_expected_gpu_model_pattern)
+        fail_msg: "Expected RTX 4090 GPUs were not detected."
+
+    - name: Query NVIDIA driver version
+      ansible.builtin.command: >-
+        nvidia-smi --query-gpu=driver_version --format=csv,noheader
+      register: driver_versions
+      changed_when: false
+
+    - name: Assert one R580 driver version
+      ansible.builtin.assert:
+        that:
+          - driver_versions.stdout_lines | unique | length == 1
+          - >-
+            (driver_versions.stdout_lines | first)
+            is match(host_baseline_expected_driver_branch_pattern)
+        fail_msg: >-
+          Expected one R580 driver version.
+          Observed: {{ driver_versions.stdout_lines }}
+
+    - name: Host baseline validation passed
+      ansible.builtin.debug:
+        msg: "PASS: host baseline is ready for k3s bootstrap."

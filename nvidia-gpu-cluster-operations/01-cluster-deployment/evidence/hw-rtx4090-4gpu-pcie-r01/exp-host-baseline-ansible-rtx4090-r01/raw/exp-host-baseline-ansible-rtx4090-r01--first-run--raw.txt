@@ -1,0 +1,10 @@
+[WARNING]: No inventory was parsed, only implicit localhost is available
+[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+[ERROR]: The role 'host_baseline' was not found in: /Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/nvidia-gpu-cluster-operations/01-cluster-deployment/ansible/playbooks/roles:/Users/Jack_Frounjian/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:/Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/nvidia-gpu-cluster-operations/01-cluster-deployment/ansible/playbooks
+Origin: /Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/nvidia-gpu-cluster-operations/01-cluster-deployment/ansible/playbooks/host-baseline.yaml:8:7
+
+6
+7   roles:
+8     - role: host_baseline
+        ^ column 7
+

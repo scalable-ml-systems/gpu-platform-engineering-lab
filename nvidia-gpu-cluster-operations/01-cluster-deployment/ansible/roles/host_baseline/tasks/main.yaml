@@ -1,0 +1,129 @@
+---
+- name: Assert Ubuntu 24.04
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == "Ubuntu"
+      - ansible_distribution_version is version("24.04", "==")
+    fail_msg: >-
+      Expected Ubuntu 24.04.
+      Observed {{ ansible_distribution }} {{ ansible_distribution_version }}.
+
+- name: Refresh apt package metadata
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install host baseline packages
+  ansible.builtin.apt:
+    name: "{{ host_baseline_packages }}"
+    state: present
+
+- name: Disable swap for current runtime
+  ansible.builtin.command: swapoff -a
+  when:
+    - host_baseline_disable_swap
+    - ansible_swaptotal_mb | int > 0
+  changed_when: true
+
+- name: Comment active swap entries in fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(\s*[^#\n]+\s+[^#\n]+\s+swap\s+[^#\n]+)$'
+    replace: '# \1'
+  when: host_baseline_disable_swap
+
+- name: Persist required kernel modules
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/gpu-ops-k3s.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      {% for module in host_baseline_kernel_modules %}
+      {{ module }}
+      {% endfor %}
+
+- name: Load required kernel modules
+  ansible.builtin.command: "modprobe {{ item }}"
+  loop: "{{ host_baseline_kernel_modules }}"
+  changed_when: false
+
+- name: Persist Kubernetes sysctl values
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-gpu-ops-k3s.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      {% for key, value in host_baseline_sysctl.items() %}
+      {{ key }} = {{ value }}
+      {% endfor %}
+  register: sysctl_file
+
+- name: Apply sysctl values when configuration changes
+  ansible.builtin.command: sysctl --system
+  when: sysctl_file.changed
+  changed_when: true
+
+- name: Enable system time synchronization
+  ansible.builtin.command: timedatectl set-ntp true
+  when: host_baseline_enable_time_sync
+  changed_when: false
+  failed_when: false
+
+- name: Verify nvidia-smi executes
+  ansible.builtin.command: nvidia-smi
+  changed_when: false
+  when: host_baseline_validate_nvidia
+
+- name: Query GPU list
+  ansible.builtin.command: nvidia-smi -L
+  register: gpu_list
+  changed_when: false
+  when: host_baseline_validate_nvidia
+
+- name: Assert expected GPU count
+  ansible.builtin.assert:
+    that:
+      - >-
+        gpu_list.stdout_lines
+        | select('match', '^GPU ')
+        | list
+        | length
+        == host_baseline_expected_gpu_count
+    fail_msg: >-
+      Expected {{ host_baseline_expected_gpu_count }} GPUs.
+      Observed output: {{ gpu_list.stdout }}
+  when: host_baseline_validate_nvidia
+
+- name: Assert expected GPU model
+  ansible.builtin.assert:
+    that:
+      - gpu_list.stdout is search(host_baseline_expected_gpu_model_pattern)
+    fail_msg: "Expected GPU model was not detected."
+  when: host_baseline_validate_nvidia
+
+- name: Query NVIDIA driver versions
+  ansible.builtin.command: >-
+    nvidia-smi --query-gpu=driver_version --format=csv,noheader
+  register: driver_versions
+  changed_when: false
+  when: host_baseline_validate_nvidia
+
+- name: Assert one R580 driver version
+  ansible.builtin.assert:
+    that:
+      - driver_versions.stdout_lines | unique | length == 1
+      - >-
+        (driver_versions.stdout_lines | first)
+        is match(host_baseline_expected_driver_branch_pattern)
+    fail_msg: >-
+      Expected one R580 driver version.
+      Observed: {{ driver_versions.stdout_lines }}
+  when: host_baseline_validate_nvidia
+
+- name: Confirm provider NVIDIA driver remains unchanged
+  ansible.builtin.debug:
+    msg: >-
+      Provider NVIDIA driver validated. This role does not install,
+      upgrade, or remove NVIDIA driver packages.

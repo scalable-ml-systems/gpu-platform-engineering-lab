@@ -1,0 +1,8 @@
+all:
+  children:
+    gpu_nodes:
+      hosts:
+        rtx4090-node:
+          ansible_host: REPLACE_WITH_CLOUDRIFT_IP
+          ansible_user: REPLACE_WITH_SSH_USER
+          ansible_ssh_private_key_file: ~/.ssh/REPLACE_WITH_KEY
