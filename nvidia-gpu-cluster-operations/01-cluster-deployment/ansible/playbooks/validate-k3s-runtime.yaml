@@ -1,0 +1,73 @@
+---
+- name: Validate k3s and NVIDIA runtime
+  hosts: gpu_nodes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Read k3s version
+      ansible.builtin.command: k3s --version
+      register: observed_k3s
+      changed_when: false
+
+    - name: Assert pinned k3s version
+      ansible.builtin.assert:
+        that:
+          - k3s_version in observed_k3s.stdout
+
+    - name: Assert k3s service is active
+      ansible.builtin.command: systemctl is-active k3s
+      register: k3s_state
+      changed_when: false
+      failed_when: k3s_state.stdout | trim != "active"
+
+    - name: Wait for node readiness
+      ansible.builtin.command: >-
+        k3s kubectl wait node --all
+        --for=condition=Ready
+        --timeout=180s
+      changed_when: false
+
+    - name: Verify NVIDIA runtime in containerd configuration
+      ansible.builtin.command: >-
+        grep -F nvidia-container-runtime
+        /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+      changed_when: false
+
+    - name: Verify NVIDIA RuntimeClass
+      ansible.builtin.command: >-
+        k3s kubectl get runtimeclass nvidia -o name
+      register: runtime_class
+      changed_when: false
+
+    - name: Assert RuntimeClass exists
+      ansible.builtin.assert:
+        that:
+          - >-
+            runtime_class.stdout | trim
+            == "runtimeclass.node.k8s.io/nvidia"
+
+    - name: Read allocatable GPU resource
+      ansible.builtin.shell: >-
+        k3s kubectl get node
+        -o jsonpath='{.items[0].status.allocatable.nvidia\.com/gpu}'
+      args:
+        executable: /bin/bash
+      register: allocatable_gpu
+      changed_when: false
+
+    - name: Assert GPU resource is not advertised yet
+      ansible.builtin.assert:
+        that:
+          - allocatable_gpu.stdout | trim == ""
+        fail_msg: >-
+          nvidia.com/gpu already exists before the Step 1.5
+          device-plugin installation.
+
+    - name: Validation passed
+      ansible.builtin.debug:
+        msg:
+          - "PASS: k3s node is Ready."
+          - "PASS: NVIDIA runtime is registered."
+          - "PASS: RuntimeClass nvidia exists."
+          - "EXPECTED: nvidia.com/gpu is not yet advertised."

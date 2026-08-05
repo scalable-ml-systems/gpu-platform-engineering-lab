@@ -1,0 +1,63 @@
+---
+- name: Install NVIDIA repository prerequisites
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install NVIDIA repository signing key
+  ansible.builtin.get_url:
+    url: https://nvidia.github.io/libnvidia-container/gpgkey
+    dest: /usr/share/keyrings/nvidia-container-toolkit-keyring.asc
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure NVIDIA Container Toolkit repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      deb [arch=amd64 signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.asc] https://nvidia.github.io/libnvidia-container/stable/deb/amd64 /
+
+- name: Install pinned NVIDIA Container Toolkit
+  ansible.builtin.apt:
+    name: >-
+      nvidia-container-toolkit={{
+        nvidia_container_toolkit_package_version
+      }}
+    state: present
+    update_cache: true
+
+- name: Read NVIDIA Container Toolkit version
+  ansible.builtin.command: nvidia-ctk --version
+  register: nvidia_ctk_version
+  changed_when: false
+
+- name: Read NVIDIA container runtime version
+  ansible.builtin.command: nvidia-container-runtime --version
+  register: nvidia_runtime_version
+  changed_when: false
+
+- name: Assert expected toolkit release
+  ansible.builtin.assert:
+    that:
+      - >-
+        nvidia_container_toolkit_release
+        in nvidia_ctk_version.stdout
+      - >-
+        nvidia_container_toolkit_release
+        in nvidia_runtime_version.stdout
+    fail_msg: >-
+      Expected NVIDIA Container Toolkit
+      {{ nvidia_container_toolkit_release }}.
+
+- name: Confirm provider NVIDIA driver remains healthy
+  ansible.builtin.command: nvidia-smi
+  changed_when: false

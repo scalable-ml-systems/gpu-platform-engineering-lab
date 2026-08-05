@@ -1,0 +1,78 @@
+---
+- name: Create k3s configuration directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Write k3s configuration
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  register: k3s_config
+
+- name: Download version-scoped k3s install script
+  ansible.builtin.get_url:
+    url: >-
+      https://raw.githubusercontent.com/k3s-io/k3s/{{
+        k3s_version
+      }}/install.sh
+    dest: /usr/local/src/install-k3s.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Read installed k3s version
+  ansible.builtin.command: k3s --version
+  register: installed_k3s
+  changed_when: false
+  failed_when: false
+
+- name: Install pinned k3s
+  ansible.builtin.command:
+    cmd: /usr/local/src/install-k3s.sh
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_EXEC: server
+  when:
+    - >-
+      installed_k3s.rc != 0
+      or k3s_version not in installed_k3s.stdout
+  changed_when: true
+
+- name: Restart k3s after configuration change
+  ansible.builtin.systemd_service:
+    name: k3s
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  when: k3s_config.changed
+
+- name: Ensure k3s is running
+  ansible.builtin.systemd_service:
+    name: k3s
+    state: started
+    enabled: true
+
+- name: Wait for Kubernetes node readiness
+  ansible.builtin.command: >-
+    k3s kubectl wait node --all
+    --for=condition=Ready
+    --timeout=180s
+  changed_when: false
+
+- name: Verify generated NVIDIA runtime configuration
+  ansible.builtin.command: >-
+    grep -F nvidia-container-runtime
+    /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+  changed_when: false
+
+- name: Verify NVIDIA RuntimeClass
+  ansible.builtin.command: >-
+    k3s kubectl get runtimeclass nvidia -o name
+  changed_when: false

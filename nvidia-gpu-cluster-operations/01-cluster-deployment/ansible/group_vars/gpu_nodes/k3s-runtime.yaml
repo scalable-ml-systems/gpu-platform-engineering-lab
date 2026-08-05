@@ -1,0 +1,11 @@
+---
+hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+
+k3s_version: "v1.35.5+k3s1"
+
+k3s_disable_components:
+  - traefik
+  - servicelb
+
+nvidia_container_toolkit_package_version: "1.19.1-1"
+nvidia_container_toolkit_release: "1.19.1"

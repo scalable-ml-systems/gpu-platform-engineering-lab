@@ -1,0 +1,9 @@
+---
+- name: Bootstrap k3s with NVIDIA runtime
+  hosts: gpu_nodes
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: nvidia_container_runtime
+    - role: k3s_server

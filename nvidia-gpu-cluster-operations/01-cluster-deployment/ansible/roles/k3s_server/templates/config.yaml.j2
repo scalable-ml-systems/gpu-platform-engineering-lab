@@ -1,0 +1,12 @@
+write-kubeconfig-mode: "0600"
+
+disable:
+{% for component in k3s_disable_components %}
+  - "{{ component }}"
+{% endfor %}
+
+node-label:
+  - "gpu.platform/hardware-profile={{ hardware_profile_id }}"
+  - "gpu.platform/vendor=nvidia"
+
+flannel-backend: "vxlan"
