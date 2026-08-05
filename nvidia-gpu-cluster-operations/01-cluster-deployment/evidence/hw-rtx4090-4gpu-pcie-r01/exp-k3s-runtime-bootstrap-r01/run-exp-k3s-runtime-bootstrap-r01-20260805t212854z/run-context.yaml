@@ -1,0 +1,5 @@
+experiment_id: "exp-k3s-runtime-bootstrap-r01"
+run_id: "run-exp-k3s-runtime-bootstrap-r01-20260805t212854z"
+hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+started_at_utc: "2026-08-05T21:28:54Z"
+control_host: "bn-jfrounjian-mac"

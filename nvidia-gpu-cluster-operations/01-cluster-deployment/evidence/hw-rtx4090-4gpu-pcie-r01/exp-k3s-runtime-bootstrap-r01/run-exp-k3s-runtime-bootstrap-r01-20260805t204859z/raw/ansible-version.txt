@@ -1,0 +1,9 @@
+ansible [core 2.21.2]
+  config file = /Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/nvidia-gpu-cluster-operations/01-cluster-deployment/ansible/ansible.cfg
+  configured module search path = ['/Users/Jack_Frounjian/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/.venv/lib/python3.13/site-packages/ansible
+  ansible collection location = /Users/Jack_Frounjian/.ansible/collections:/usr/share/ansible/collections
+  executable location = /Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/.venv/bin/ansible
+  python version = 3.13.7 (main, Aug 28 2025, 18:05:04) [Clang 13.0.0 (clang-1300.0.29.30)] (/Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/.venv/bin/python)
+  jinja version = 3.1.6
+  pyyaml version = 6.0.3 (with libyaml v0.2.5)

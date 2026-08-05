@@ -1,0 +1,9 @@
+---
+nvidia_container_toolkit_package_version: "1.19.1-1"
+nvidia_container_toolkit_release: "1.19.1"
+
+nvidia_container_repository_key_url: >-
+  https://nvidia.github.io/libnvidia-container/gpgkey
+
+nvidia_container_repository_key_path: >-
+  /usr/share/keyrings/nvidia-container-toolkit-keyring.asc

@@ -28,10 +28,7 @@
 
 - name: Install pinned NVIDIA Container Toolkit
   ansible.builtin.apt:
-    name: >-
-      nvidia-container-toolkit={{
-        nvidia_container_toolkit_package_version
-      }}
+    name: "nvidia-container-toolkit={{ nvidia_container_toolkit_package_version }}"
     state: present
     update_cache: true
 
@@ -48,15 +45,10 @@
 - name: Assert expected toolkit release
   ansible.builtin.assert:
     that:
-      - >-
-        nvidia_container_toolkit_release
-        in nvidia_ctk_version.stdout
-      - >-
-        nvidia_container_toolkit_release
-        in nvidia_runtime_version.stdout
+      - nvidia_container_toolkit_release in nvidia_ctk_version.stdout
+      - nvidia_container_toolkit_release in nvidia_runtime_version.stdout
     fail_msg: >-
-      Expected NVIDIA Container Toolkit
-      {{ nvidia_container_toolkit_release }}.
+      Expected NVIDIA Container Toolkit {{ nvidia_container_toolkit_release }}.
 
 - name: Confirm provider NVIDIA driver remains healthy
   ansible.builtin.command: nvidia-smi

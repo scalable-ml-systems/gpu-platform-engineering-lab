@@ -4,6 +4,22 @@
   become: true
   gather_facts: true
 
+  pre_tasks:
+    - name: Validate required deployment variables
+      ansible.builtin.assert:
+        that:
+          - nvidia_container_toolkit_package_version is defined
+          - nvidia_container_toolkit_package_version | length > 0
+          - nvidia_container_toolkit_release is defined
+          - nvidia_container_toolkit_release | length > 0
+          - k3s_version is defined
+          - k3s_version | length > 0
+          - hardware_profile_id is defined
+          - hardware_profile_id | length > 0
+        fail_msg: >-
+          Required Step 1.4 deployment variables are missing.
+          Check inventory/group_vars/gpu_nodes/k3s-runtime.yaml.
+
   roles:
     - role: nvidia_container_runtime
     - role: k3s_server

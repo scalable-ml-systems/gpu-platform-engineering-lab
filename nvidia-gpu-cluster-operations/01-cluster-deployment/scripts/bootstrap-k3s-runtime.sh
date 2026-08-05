@@ -14,26 +14,14 @@ DEPLOYMENT_ROOT="$(
 
 ANSIBLE_ROOT="${DEPLOYMENT_ROOT}/ansible"
 
-HARDWARE_PROFILE_ID="${
-  HARDWARE_PROFILE_ID:-hw-rtx4090-4gpu-pcie-r01
-}"
+HARDWARE_PROFILE_ID="${HARDWARE_PROFILE_ID:-hw-rtx4090-4gpu-pcie-r01}"
 
-EXPERIMENT_ID="${
-  EXPERIMENT_ID:-exp-k3s-runtime-bootstrap-r01
-}"
+EXPERIMENT_ID="${EXPERIMENT_ID:-exp-k3s-runtime-bootstrap-r01}"
 
 RUN_TIMESTAMP="$(date -u +'%Y%m%dt%H%M%Sz')"
 RUN_ID="run-${EXPERIMENT_ID}-${RUN_TIMESTAMP}"
 
-RUN_ROOT="${
-  DEPLOYMENT_ROOT
-}/evidence/${
-  HARDWARE_PROFILE_ID
-}/${
-  EXPERIMENT_ID
-}/${
-  RUN_ID
-}"
+RUN_ROOT="${DEPLOYMENT_ROOT}/evidence/${HARDWARE_PROFILE_ID}/${EXPERIMENT_ID}/${RUN_ID}"
 
 RAW_DIR="${RUN_ROOT}/raw"
 NORMALIZED_DIR="${RUN_ROOT}/normalized"
@@ -56,7 +44,7 @@ require_file() {
 require_command ansible
 require_command ansible-playbook
 require_command ansible-inventory
-require_command sha256sum
+require_command shasum -a 256
 
 require_file "${ANSIBLE_ROOT}/inventory/hosts.yaml"
 
@@ -133,7 +121,7 @@ EOF
     -type f \
     -print0 \
     | sort -z \
-    | xargs -0 sha256sum \
+    | xargs -0 shasum -a 256 \
     > sha256sums.txt
 )
 

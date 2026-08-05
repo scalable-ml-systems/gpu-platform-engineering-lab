@@ -1,0 +1,17 @@
+schema_version: "1.0"
+experiment_id: "exp-k3s-runtime-bootstrap-r01"
+run_id: "run-exp-k3s-runtime-bootstrap-r01-20260805t212854z"
+hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+
+checks:
+  nvidia_container_toolkit: pass
+  provider_driver_preserved: pass
+  k3s_installed: pass
+  k3s_service_active: pass
+  node_ready: pass
+  nvidia_runtime_registered: pass
+  nvidia_runtime_class_present: pass
+  gpu_resource_absent_before_device_plugin: pass
+  second_run_idempotency: pending-review
+
+verdict: pending-review
