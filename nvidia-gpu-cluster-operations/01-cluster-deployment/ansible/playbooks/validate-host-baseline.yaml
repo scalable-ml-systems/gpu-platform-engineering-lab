@@ -56,12 +56,7 @@
     - name: Assert expected GPU count
       ansible.builtin.assert:
         that:
-          - >-
-            gpu_list.stdout_lines
-            | select('match', '^GPU ')
-            | list
-            | length
-            == host_baseline_expected_gpu_count
+          - (gpu_list.stdout_lines | select('match', '^GPU ') | list | length | int) == (host_baseline_expected_gpu_count | int)
         fail_msg: >-
           Expected {{ host_baseline_expected_gpu_count }} GPUs.
           Observed output: {{ gpu_list.stdout }}
