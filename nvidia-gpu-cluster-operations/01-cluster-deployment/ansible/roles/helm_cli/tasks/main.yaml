@@ -1,0 +1,49 @@
+# tasks/main.yml for helm_cli role
+
+- name: Ensure Helm install directory exists
+  ansible.builtin.file:
+    path: "{{ helm_install_dir }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ helm_delegate_to }}"
+
+- name: Check current Helm version
+  ansible.builtin.command:
+    cmd: helm version --short
+  register: _helm_current_version
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ helm_delegate_to }}"
+
+- name: Set desired Helm version string
+  ansible.builtin.set_fact:
+    helm_desired_version: "{{ helm_version | default('latest', true) }}"
+
+- name: Download Helm install script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+    mode: "0755"
+  when:
+    - helm_version == "" or
+      _helm_current_version.stdout == "" or
+      helm_desired_version != _helm_current_version.stdout
+  delegate_to: "{{ helm_delegate_to }}"
+
+- name: Install or upgrade Helm
+  ansible.builtin.command:
+    cmd: /tmp/get_helm.sh
+  environment:
+    DESIRED_VERSION: "{{ helm_version }}"
+  when:
+    - helm_version == "" or
+      _helm_current_version.stdout == "" or
+      helm_desired_version != _helm_current_version.stdout
+  delegate_to: "{{ helm_delegate_to }}"
+
+- name: Verify Helm installation
+  ansible.builtin.command:
+    cmd: helm version --short
+  register: helm_version_check
+  changed_when: false
+  delegate_to: "{{ helm_delegate_to }}"

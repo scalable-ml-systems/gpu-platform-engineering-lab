@@ -1,0 +1,412 @@
+- name: Validate NVIDIA device plugin
+  hosts: gpu_nodes
+  become: true
+  gather_facts: false
+  serial: 1
+  any_errors_fatal: true
+
+  vars:
+    validation_namespace: "gpu-validation"
+    validation_pod_name: "gpu-vectoradd"
+    validation_manifest_path: "/var/tmp/gpu-vectoradd.yaml"
+    validation_image: "nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda12.5.0"
+
+  pre_tasks:
+    - name: Validate required Step 1.5 variables
+      ansible.builtin.assert:
+        that:
+          - nvidia_device_plugin_release_name is defined
+          - nvidia_device_plugin_release_name | length > 0
+          - nvidia_device_plugin_namespace is defined
+          - nvidia_device_plugin_namespace | length > 0
+          - nvidia_device_plugin_chart_version is defined
+          - nvidia_device_plugin_chart_version | length > 0
+          - expected_physical_gpu_count is defined
+          - expected_physical_gpu_count | int > 0
+        fail_msg: >-
+          Required Step 1.5 variables are missing. Check
+          inventory/group_vars/gpu_nodes/device-plugin.yaml.
+
+    - name: Verify k3s service is active
+      ansible.builtin.command:
+        cmd: systemctl is-active k3s
+      register: k3s_service_state
+      changed_when: false
+      failed_when: k3s_service_state.stdout | trim != "active"
+
+    - name: Verify NVIDIA RuntimeClass exists
+      ansible.builtin.command:
+        cmd: k3s kubectl get runtimeclass nvidia -o name
+      register: nvidia_runtime_class
+      changed_when: false
+      failed_when: >-
+        nvidia_runtime_class.stdout | trim
+        != "runtimeclass.node.k8s.io/nvidia"
+
+  tasks:
+    - name: Read NVIDIA device-plugin Helm release
+      ansible.builtin.command:
+        cmd: >-
+          helm status
+          {{ nvidia_device_plugin_release_name }}
+          --kubeconfig /etc/rancher/k3s/k3s.yaml
+          --namespace {{ nvidia_device_plugin_namespace }}
+          --output json
+      register: device_plugin_release
+      changed_when: false
+
+    - name: Assert Helm release is deployed
+      ansible.builtin.assert:
+        that:
+          - '"deployed" in device_plugin_release.stdout'
+          - >-
+            nvidia_device_plugin_chart_version
+            in device_plugin_release.stdout
+        fail_msg: >-
+          The NVIDIA device-plugin Helm release is not deployed with the
+          expected chart version.
+
+    - name: Discover NVIDIA device-plugin DaemonSet name
+      ansible.builtin.shell:
+        cmd: >-
+          k3s kubectl
+          --namespace {{ nvidia_device_plugin_namespace }}
+          get daemonsets
+          --selector=app.kubernetes.io/name=nvidia-device-plugin
+          -o jsonpath='{.items[0].metadata.name}'
+      args:
+        executable: /bin/bash
+      register: device_plugin_daemonset_name
+      changed_when: false
+      failed_when: device_plugin_daemonset_name.stdout | trim == ""
+
+    - name: Wait for device-plugin DaemonSet rollout
+      ansible.builtin.command:
+        cmd: >-
+          k3s kubectl
+          --namespace {{ nvidia_device_plugin_namespace }}
+          rollout status
+          daemonset/{{ device_plugin_daemonset_name.stdout | trim }}
+          --timeout=180s
+      changed_when: false
+
+    - name: Read device-plugin DaemonSet readiness
+      ansible.builtin.shell:
+        cmd: >-
+          k3s kubectl
+          --namespace {{ nvidia_device_plugin_namespace }}
+          get daemonset
+          {{ device_plugin_daemonset_name.stdout | trim }}
+          -o jsonpath='{.status.desiredNumberScheduled}
+          {.status.currentNumberScheduled}
+          {.status.numberReady}
+          {.status.numberAvailable}'
+      args:
+        executable: /bin/bash
+      register: device_plugin_daemonset_readiness
+      changed_when: false
+
+    - name: Split DaemonSet readiness values
+      ansible.builtin.set_fact:
+        device_plugin_daemonset_counts: >-
+          {{
+            device_plugin_daemonset_readiness.stdout.split()
+            | map('int')
+            | list
+          }}
+
+    - name: Assert one device-plugin Pod is ready
+      ansible.builtin.assert:
+        that:
+          - device_plugin_daemonset_counts | length == 4
+          - device_plugin_daemonset_counts[0] == 1
+          - device_plugin_daemonset_counts[1] == 1
+          - device_plugin_daemonset_counts[2] == 1
+          - device_plugin_daemonset_counts[3] == 1
+        fail_msg: >-
+          Expected DaemonSet desired/current/ready/available = 1/1/1/1.
+          Observed {{ device_plugin_daemonset_counts }}.
+
+    - name: Read device-plugin Pod phases
+      ansible.builtin.shell:
+        cmd: >-
+          k3s kubectl
+          --namespace {{ nvidia_device_plugin_namespace }}
+          get pods
+          --selector=app.kubernetes.io/name=nvidia-device-plugin
+          -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}'
+      args:
+        executable: /bin/bash
+      register: device_plugin_pod_phases
+      changed_when: false
+
+    - name: Assert all device-plugin Pods are running
+      ansible.builtin.assert:
+        that:
+          - device_plugin_pod_phases.stdout_lines | length == 1
+          - >-
+            device_plugin_pod_phases.stdout_lines
+            | reject('equalto', 'Running')
+            | list
+            | length
+            == 0
+        fail_msg: >-
+          Expected exactly one Running device-plugin Pod.
+          Observed phases: {{ device_plugin_pod_phases.stdout_lines }}.
+
+    - name: Read device-plugin logs
+      ansible.builtin.command:
+        cmd: >-
+          k3s kubectl
+          --namespace {{ nvidia_device_plugin_namespace }}
+          logs
+          --selector=app.kubernetes.io/name=nvidia-device-plugin
+          --tail=300
+          --prefix=true
+      register: device_plugin_logs
+      changed_when: false
+
+    - name: Assert logs contain no initialization failures
+      ansible.builtin.assert:
+        that:
+          - "'failed to load nvml' not in device_plugin_logs.stdout | lower"
+          - "'no devices found' not in device_plugin_logs.stdout | lower"
+          - "'error starting plugins' not in device_plugin_logs.stdout | lower"
+          - "'incompatible platform detected' not in device_plugin_logs.stdout | lower"
+        fail_msg: >-
+          The NVIDIA device-plugin logs contain an initialization failure.
+          Review the captured validation log and plugin logs.
+
+    - name: Wait for four allocatable GPUs
+      ansible.builtin.shell:
+        cmd: >-
+          k3s kubectl get nodes
+          -o jsonpath='{.items[0].status.allocatable.nvidia\.com/gpu}'
+      args:
+        executable: /bin/bash
+      register: gpu_allocatable_wait
+      changed_when: false
+      retries: 18
+      delay: 10
+      until: >-
+        gpu_allocatable_wait.stdout | trim
+        == expected_physical_gpu_count | string
+
+    - name: Read Kubernetes GPU capacity
+      ansible.builtin.shell:
+        cmd: >-
+          k3s kubectl get nodes
+          -o jsonpath='{.items[0].status.capacity.nvidia\.com/gpu}'
+      args:
+        executable: /bin/bash
+      register: gpu_capacity
+      changed_when: false
+
+    - name: Read Kubernetes allocatable GPUs
+      ansible.builtin.shell:
+        cmd: >-
+          k3s kubectl get nodes
+          -o jsonpath='{.items[0].status.allocatable.nvidia\.com/gpu}'
+      args:
+        executable: /bin/bash
+      register: gpu_allocatable
+      changed_when: false
+
+    - name: Assert four GPUs are advertised
+      ansible.builtin.assert:
+        that:
+          - >-
+            gpu_capacity.stdout | trim
+            == expected_physical_gpu_count | string
+          - >-
+            gpu_allocatable.stdout | trim
+            == expected_physical_gpu_count | string
+        fail_msg: >-
+          Expected capacity and allocatable to equal
+          {{ expected_physical_gpu_count }}.
+          capacity={{ gpu_capacity.stdout | trim }},
+          allocatable={{ gpu_allocatable.stdout | trim }}.
+
+    - name: Write CUDA vector-add validation manifest
+      ansible.builtin.copy:
+        dest: "{{ validation_manifest_path }}"
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: {{ validation_namespace }}
+          ---
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: {{ validation_pod_name }}
+            namespace: {{ validation_namespace }}
+            labels:
+              app.kubernetes.io/name: gpu-vectoradd
+              gpu.platform/validation: device-plugin
+          spec:
+            runtimeClassName: nvidia
+            restartPolicy: Never
+            containers:
+              - name: vectoradd
+                image: {{ validation_image }}
+                imagePullPolicy: IfNotPresent
+                resources:
+                  limits:
+                    nvidia.com/gpu: 1
+            tolerations:
+              - key: nvidia.com/gpu
+                operator: Exists
+                effect: NoSchedule
+
+    - name: Delete previous CUDA validation Pod
+      ansible.builtin.command:
+        cmd: >-
+          k3s kubectl
+          --namespace {{ validation_namespace }}
+          delete pod {{ validation_pod_name }}
+          --ignore-not-found=true
+          --wait=true
+          --timeout=120s
+      register: previous_validation_pod
+      changed_when: "'deleted' in previous_validation_pod.stdout"
+
+    - name: Apply CUDA vector-add validation manifest
+      ansible.builtin.command:
+        cmd: >-
+          k3s kubectl apply
+          --filename {{ validation_manifest_path }}
+      register: apply_validation_manifest
+      changed_when: >-
+        'created' in apply_validation_manifest.stdout
+        or 'configured' in apply_validation_manifest.stdout
+
+    - name: Run and validate CUDA smoke workload
+      block:
+        - name: Wait for CUDA validation Pod to succeed
+          ansible.builtin.shell:
+            cmd: >-
+              k3s kubectl
+              --namespace {{ validation_namespace }}
+              wait
+              --for=jsonpath='{.status.phase}'=Succeeded
+              pod/{{ validation_pod_name }}
+              --timeout=300s
+          args:
+            executable: /bin/bash
+          register: validation_pod_wait
+          changed_when: false
+
+        - name: Read CUDA validation logs
+          ansible.builtin.command:
+            cmd: >-
+              k3s kubectl
+              --namespace {{ validation_namespace }}
+              logs pod/{{ validation_pod_name }}
+          register: validation_pod_logs
+          changed_when: false
+
+        - name: Read allocated node and Pod phase
+          ansible.builtin.shell:
+            cmd: >-
+              k3s kubectl
+              --namespace {{ validation_namespace }}
+              get pod {{ validation_pod_name }}
+              -o jsonpath='{.spec.nodeName}{" "}
+              {.status.phase}{" "}
+              {.spec.containers[0].resources.limits.nvidia\.com/gpu}'
+          args:
+            executable: /bin/bash
+          register: validation_pod_result
+          changed_when: false
+
+        - name: Assert CUDA vector-add passed
+          ansible.builtin.assert:
+            that:
+              - "'Test PASSED' in validation_pod_logs.stdout"
+              - "'Done' in validation_pod_logs.stdout"
+              - "'Succeeded' in validation_pod_result.stdout"
+              - >-
+                validation_pod_result.stdout.split()[-1]
+                == "1"
+            fail_msg: >-
+              The CUDA smoke workload did not produce the expected successful
+              result. Pod result={{ validation_pod_result.stdout }}.
+
+      rescue:
+        - name: Read failed validation Pod state
+          ansible.builtin.command:
+            cmd: >-
+              k3s kubectl
+              --namespace {{ validation_namespace }}
+              get pod {{ validation_pod_name }}
+              -o wide
+          register: failed_validation_pod
+          changed_when: false
+          failed_when: false
+
+        - name: Describe failed validation Pod
+          ansible.builtin.command:
+            cmd: >-
+              k3s kubectl
+              --namespace {{ validation_namespace }}
+              describe pod {{ validation_pod_name }}
+          register: failed_validation_pod_description
+          changed_when: false
+          failed_when: false
+
+        - name: Read failed validation Pod logs
+          ansible.builtin.command:
+            cmd: >-
+              k3s kubectl
+              --namespace {{ validation_namespace }}
+              logs pod/{{ validation_pod_name }}
+          register: failed_validation_pod_logs
+          changed_when: false
+          failed_when: false
+
+        - name: Read validation namespace events
+          ansible.builtin.command:
+            cmd: >-
+              k3s kubectl
+              --namespace {{ validation_namespace }}
+              get events
+              --sort-by=.metadata.creationTimestamp
+          register: failed_validation_events
+          changed_when: false
+          failed_when: false
+
+        - name: Print CUDA smoke diagnostics
+          ansible.builtin.debug:
+            msg:
+              - "{{ failed_validation_pod.stdout }}"
+              - "{{ failed_validation_pod_description.stdout }}"
+              - "{{ failed_validation_pod_logs.stdout }}"
+              - "{{ failed_validation_events.stdout }}"
+
+        - name: Fail CUDA smoke validation
+          ansible.builtin.fail:
+            msg: >-
+              The CUDA vector-add Pod did not complete successfully.
+              The diagnostic output above is also retained in validation.log.
+
+  post_tasks:
+    - name: Print Step 1.5 validation summary
+      ansible.builtin.debug:
+        msg:
+          - >-
+            PASS: NVIDIA device-plugin DaemonSet is ready 1/1.
+          - >-
+            PASS: Kubernetes capacity nvidia.com/gpu={{
+            gpu_capacity.stdout | trim }}.
+          - >-
+            PASS: Kubernetes allocatable nvidia.com/gpu={{
+            gpu_allocatable.stdout | trim }}.
+          - >-
+            PASS: CUDA vector-add requested one GPU and reported Test PASSED.
+          - >-
+            EVIDENCE: {{ validation_namespace }}/{{ validation_pod_name }}
+            remains available for the local wrapper to capture.

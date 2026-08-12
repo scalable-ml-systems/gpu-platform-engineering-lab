@@ -1,0 +1,137 @@
+- name: Install NVIDIA device plugin
+  hosts: gpu_nodes
+  become: true
+  gather_facts: true
+  serial: 1
+  any_errors_fatal: true
+
+  pre_tasks:
+    - name: Validate required Step 1.5 variables
+      ansible.builtin.assert:
+        that:
+          - helm_version is defined
+          - helm_version | length > 0
+          - nvidia_device_plugin_release_name is defined
+          - nvidia_device_plugin_release_name | length > 0
+          - nvidia_device_plugin_namespace is defined
+          - nvidia_device_plugin_namespace | length > 0
+          - nvidia_device_plugin_chart_version is defined
+          - nvidia_device_plugin_chart_version | length > 0
+          - expected_physical_gpu_count is defined
+          - expected_physical_gpu_count | int > 0
+        fail_msg: >-
+          Required Step 1.5 variables are missing. Check
+          inventory/group_vars/gpu_nodes/device-plugin.yaml.
+
+    - name: Assert supported operating system
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == "Ubuntu"
+          - ansible_distribution_release == "noble"
+          - ansible_architecture == "x86_64"
+        fail_msg: >-
+          Step 1.5 expects Ubuntu 24.04 (noble) on x86_64.
+          Observed {{ ansible_distribution }}
+          {{ ansible_distribution_version }}
+          {{ ansible_architecture }}.
+
+    - name: Verify k3s service is active
+      ansible.builtin.command:
+        cmd: systemctl is-active k3s
+      register: k3s_service_state
+      changed_when: false
+      failed_when: k3s_service_state.stdout | trim != "active"
+
+    - name: Verify NVIDIA RuntimeClass exists
+      ansible.builtin.command:
+        cmd: k3s kubectl get runtimeclass nvidia -o name
+      register: nvidia_runtime_class
+      changed_when: false
+      failed_when: >-
+        nvidia_runtime_class.stdout | trim
+        != "runtimeclass.node.k8s.io/nvidia"
+
+    - name: Read host-visible NVIDIA GPU UUIDs
+      ansible.builtin.command:
+        cmd: >-
+          nvidia-smi
+          --query-gpu=uuid
+          --format=csv,noheader
+      register: host_gpu_uuids
+      changed_when: false
+
+    - name: Assert expected physical GPU count
+      ansible.builtin.assert:
+        that:
+          - >-
+            host_gpu_uuids.stdout_lines | length
+            == expected_physical_gpu_count | int
+        fail_msg: >-
+          Expected {{ expected_physical_gpu_count }} host-visible GPUs,
+          but nvidia-smi reported {{ host_gpu_uuids.stdout_lines | length }}.
+
+    - name: Read current Kubernetes GPU allocatable value
+      ansible.builtin.shell:
+        cmd: >-
+          k3s kubectl get nodes
+          -o jsonpath='{.items[0].status.allocatable.nvidia\.com/gpu}'
+      args:
+        executable: /bin/bash
+      register: current_gpu_allocatable
+      changed_when: false
+
+    - name: Assert current GPU state is valid for first run or rerun
+      ansible.builtin.assert:
+        that:
+          - >-
+            current_gpu_allocatable.stdout | trim == ""
+            or
+            current_gpu_allocatable.stdout | trim
+            == expected_physical_gpu_count | string
+        fail_msg: >-
+          Kubernetes currently reports
+          nvidia.com/gpu={{ current_gpu_allocatable.stdout | trim }},
+          but Step 1.5 expects either no resource before installation or
+          {{ expected_physical_gpu_count }} after installation.
+
+  roles:
+    - role: helm_cli
+      tags:
+        - helm
+
+    - role: nvidia_device_plugin
+      tags:
+        - device_plugin
+
+  post_tasks:
+    - name: Read deployed Helm release
+      ansible.builtin.command:
+        cmd: >-
+          helm list
+          --kubeconfig /etc/rancher/k3s/k3s.yaml
+          --namespace {{ nvidia_device_plugin_namespace }}
+          --filter '^{{ nvidia_device_plugin_release_name }}$'
+          --output json
+      register: deployed_release
+      changed_when: false
+
+    - name: Assert NVIDIA device-plugin Helm release exists
+      ansible.builtin.assert:
+        that:
+          - nvidia_device_plugin_release_name in deployed_release.stdout
+          - nvidia_device_plugin_chart_version in deployed_release.stdout
+        fail_msg: >-
+          The NVIDIA device-plugin Helm release was not found with the
+          expected release name and chart version.
+
+    - name: Installation stage complete
+      ansible.builtin.debug:
+        msg:
+          - >-
+            PASS: Helm release {{ nvidia_device_plugin_release_name }}
+            is installed in namespace
+            {{ nvidia_device_plugin_namespace }}.
+          - >-
+            NEXT: run validate-nvidia-device-plugin.yaml to verify
+            DaemonSet readiness, nvidia.com/gpu={{ expected_physical_gpu_count }},
+            and the CUDA smoke workload.

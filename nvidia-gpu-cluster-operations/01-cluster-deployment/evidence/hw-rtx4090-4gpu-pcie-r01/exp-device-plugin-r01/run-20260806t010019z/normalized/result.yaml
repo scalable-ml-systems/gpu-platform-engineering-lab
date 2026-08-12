@@ -1,0 +1,16 @@
+schema_version: "1.0"
+experiment_id: "exp-device-plugin-r01"
+run_id: "run-20260806t010019z"
+hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+target_group: "gpu_nodes"
+expected_gpu_count: 4
+
+checks:
+  ansible_connectivity: not-run
+  device_plugin_install: not-run
+  device_plugin_validation: not-run
+  evidence_capture: not-run
+  second_run_idempotency: not-evaluated
+
+verdict: "fail"
+failed_stage: "local-preflight"

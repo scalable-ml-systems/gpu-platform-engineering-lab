@@ -1,0 +1,4 @@
+@all:
+  |--@ungrouped:
+  |--@gpu_nodes:
+  |  |--rtx4090-node

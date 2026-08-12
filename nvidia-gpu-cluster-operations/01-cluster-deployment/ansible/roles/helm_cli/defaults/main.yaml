@@ -1,0 +1,10 @@
+# defaults/main.yml for helm_cli role
+
+# Where to install helm binary
+helm_install_dir: /usr/local/bin
+
+# Helm version to install (empty = latest stable)
+helm_version: ""
+
+# Which host to run helm on (usually localhost for client-side installs)
+helm_delegate_to: localhost

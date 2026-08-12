@@ -1,0 +1,10 @@
+experiment_id: "exp-device-plugin-r01"
+run_id: "run-20260806t020440z"
+hardware_profile_id: "hw-rtx4090-4gpu-pcie-r01"
+target_group: "gpu_nodes"
+expected_gpu_count: 4
+nvdp_release_name: "nvdp"
+nvdp_namespace: "nvidia-device-plugin"
+started_at_utc: "2026-08-06T02:04:40Z"
+control_host: "bn-jfrounjian-mac"
+deployment_root: "/Users/Jack_Frounjian/Desktop/Cloud_Computing/gpu-platform-engineering-lab/nvidia-gpu-cluster-operations/01-cluster-deployment"

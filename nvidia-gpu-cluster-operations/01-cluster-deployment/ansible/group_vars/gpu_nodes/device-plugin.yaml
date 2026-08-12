@@ -1,0 +1,8 @@
+---
+helm_version: "v3.20.2"
+
+nvidia_device_plugin_release_name: "nvdp"
+nvidia_device_plugin_namespace: "nvidia-device-plugin"
+nvidia_device_plugin_chart_version: "0.19.0"
+
+expected_physical_gpu_count: 4
