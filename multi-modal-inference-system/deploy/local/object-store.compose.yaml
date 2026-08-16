@@ -1,0 +1,19 @@
+services:
+  object-store:
+    image: quay.io/minio/minio
+    command:
+      - server
+      - /data
+      - --console-address
+      - ":9001"
+    ports:
+      - "9000:9000" # S3-compatible API
+      - "9001:9001" # MinIO web console
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - object_store_data:/data
+
+volumes:
+  object_store_data:
