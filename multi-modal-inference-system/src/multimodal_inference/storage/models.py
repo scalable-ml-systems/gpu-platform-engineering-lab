@@ -6,11 +6,13 @@ from sqlalchemy import (
     CheckConstraint,
     BigInteger,
     DateTime,
+    ForeignKey,
     Enum,
     Integer,
     String,
     Text,
     func,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -138,4 +140,78 @@ class Job(Base):
     completed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
+    )
+
+class DispatchOutbox(Base):
+    __tablename__ = "dispatch_outbox"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "job_id",
+            "event_type",
+            name="uq_dispatch_outbox_job_event",
+        ),
+    )
+
+    event_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "jobs.job_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    event_type: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    schema_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+        server_default="1",
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    published_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+
+    redis_message_id: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    claimed_by: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
+    claim_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+
+    publish_attempts: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
     )

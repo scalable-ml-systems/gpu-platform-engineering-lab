@@ -30,6 +30,11 @@ from multimodal_inference.storage.object_store import (
     S3ObjectStore,
 )
 
+from multimodal_inference.storage.models import (
+    DispatchOutbox,
+    Job,
+    JobState,
+)
 
 router = APIRouter(
     prefix="/jobs",
@@ -205,49 +210,62 @@ def create_job(
     )
 
     job = Job(
-        idempotency_key=idempotency_key,
-        state=JobState.VALIDATED,
-        prompt=request.prompt,
-        image_bucket=store.bucket,
-        image_object_key=request.object_key,
-        image_content_type=content_type,
-        image_size_bytes=size_bytes,
+    idempotency_key=idempotency_key,
+    state=JobState.QUEUED,
+    prompt=request.prompt,
+    image_bucket=store.bucket,
+    image_object_key=request.object_key,
+    image_content_type=content_type,
+    image_size_bytes=size_bytes,
+)
+
+database.add(job)
+
+# INSERT the Job inside the current transaction so
+# job.job_id exists, but DO NOT commit.
+database.flush()
+
+outbox_event = DispatchOutbox(
+    job_id=job.job_id,
+    event_type="job.ready",
+    schema_version=1,
+)
+
+database.add(outbox_event)
+
+try:
+    database.commit()
+
+except IntegrityError:
+    database.rollback()
+
+    existing_job = database.scalar(
+        select(Job).where(
+            Job.idempotency_key
+            == idempotency_key
+        )
     )
 
-    database.add(job)
-
-    try:
-        database.commit()
-    except IntegrityError:
-        database.rollback()
-
-        existing_job = database.scalar(
-            select(Job).where(
-                Job.idempotency_key
-                == idempotency_key
-            )
+    if (
+        existing_job is not None
+        and request_matches_job(
+            existing_job,
+            request,
+        )
+    ):
+        response.status_code = (
+            status.HTTP_200_OK
         )
 
-        if (
-            existing_job is not None
-            and request_matches_job(
-                existing_job,
-                request,
-            )
-        ):
-            response.status_code = (
-                status.HTTP_200_OK
-            )
+        return existing_job
 
-            return existing_job
-
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="idempotency key conflict",
-        )
-
-    database.refresh(
-        job,
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail="idempotency key conflict",
     )
 
-    return job
+database.refresh(job)
+
+response.status_code = status.HTTP_201_CREATED
+
+return job

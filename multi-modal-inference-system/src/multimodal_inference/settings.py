@@ -42,3 +42,39 @@ ALLOWED_IMAGE_CONTENT_TYPES = {
     "image/png",
     "image/webp",
 }
+
+REDIS_URL = os.getenv(
+    "REDIS_URL",
+    "redis://localhost:6379/0",
+)
+
+REDIS_STREAM_KEY = os.getenv(
+    "REDIS_STREAM_KEY",
+    "inference.jobs",
+)
+
+REDIS_CONSUMER_GROUP = os.getenv(
+    "REDIS_CONSUMER_GROUP",
+    "inference-workers",
+)
+
+OUTBOX_BATCH_SIZE = int(
+    os.getenv(
+        "OUTBOX_BATCH_SIZE",
+        "25",
+    )
+)
+
+OUTBOX_CLAIM_SECONDS = int(
+    os.getenv(
+        "OUTBOX_CLAIM_SECONDS",
+        "30",
+    )
+)
+
+DISPATCHER_POLL_SECONDS = float(
+    os.getenv(
+        "DISPATCHER_POLL_SECONDS",
+        "1",
+    )
+)

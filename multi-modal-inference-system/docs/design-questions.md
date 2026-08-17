@@ -52,3 +52,35 @@ The client has already uploaded an image to MinIO/S4.
 ## API Role 
 
 We use direct presigned uploads: the API authorizes a short-lived, tightly scoped upload but does not proxy image bytes. The client uploads directly to S3-compatible storage, which keeps the API off the large-file data path. Afterward, the API verifies the stored object with HEAD and commits the Job metadata to Postgres. This improves scalability and keeps permanent storage credentials private; the main trade-off is orphan uploads, which we handle with lifecycle expiration.
+
+## Redis - Reliable asynchronous handoff under partial failure.
+
+- Postgres records what work the system owes. 
+- Redis distributes that work. 
+- The transactional outbox bridges them without requiring an impossible atomic Postgres+Redis write. 
+- We accept at-least-once delivery 
+- Design consumers to be idempotent rather than pretending distributed execution is exactly-once.
+
+API → Postgres
+What if Postgres fails?
+
+Postgres → Outbox
+What if only one write succeeds?
+
+Outbox → Dispatcher
+What if dispatcher dies?
+
+Dispatcher → Redis
+What if Redis is unavailable?
+
+Redis accepts → dispatcher dies
+What if published_at was never recorded?
+
+Redis → Worker
+What if message is delivered twice?
+
+Worker receives
+What if worker crashes?
+
+## Dual-write problem - solve using transactional outbox pattern
+The transactional outbox pattern prevents data loss when a service updates a database and publishes an event at the same time.
