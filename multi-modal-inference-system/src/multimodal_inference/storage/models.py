@@ -215,3 +215,20 @@ class DispatchOutbox(Base):
         default=0,
         server_default="0",
     )
+
+worker_id: Mapped[str | None] = mapped_column(
+    String(255),
+    nullable=True,
+)
+
+attempt_count: Mapped[int] = mapped_column(
+    Integer,
+    nullable=False,
+    default=0,
+    server_default="0",
+)
+
+started_at: Mapped[datetime | None] = mapped_column(
+    DateTime(timezone=True),
+    nullable=True,
+)

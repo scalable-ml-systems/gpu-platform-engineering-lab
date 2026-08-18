@@ -96,3 +96,17 @@ class S3ObjectStore:
             Bucket=self.bucket,
             Key=object_key,
         )
+
+def get_object(
+    self,
+    object_key: str,
+) -> bytes:
+    response = self.client.get_object(
+        Bucket=self.bucket,
+        Key=object_key,
+    )
+
+    try:
+        return response["Body"].read()
+    finally:
+        response["Body"].close()
