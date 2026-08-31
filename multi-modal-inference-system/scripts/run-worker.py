@@ -51,3 +51,22 @@ def process_message(
         settings.REDIS_CONSUMER_GROUP,
         message_id,
     )
+
+   from multimodal_inference.inference.vllm_executor import (
+    VLLMInferenceExecutor,
+)
+from multimodal_inference.worker.consumer import (
+    run_forever,
+)
+
+
+def main() -> None:
+    executor = VLLMInferenceExecutor()
+
+    run_forever(
+        executor=executor
+    )
+
+
+if __name__ == "__main__":
+    main()

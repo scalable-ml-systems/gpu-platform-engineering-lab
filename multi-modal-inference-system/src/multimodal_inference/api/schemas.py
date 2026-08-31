@@ -31,14 +31,22 @@ class JobCreateRequest(BaseModel):
         max_length=16000,
     )
 
-
-class JobResponse(BaseModel):
+   class JobResponse(BaseModel):
     model_config = ConfigDict(
-        from_attributes=True
+        from_attributes=True,
     )
 
     job_id: UUID
     request_id: UUID
     state: JobState
+
     image_object_key: str
+
+    result: str | None
+    failure_reason: str | None
+
+    model_version: str | None
+    runtime_version: str | None
+
     created_at: datetime
+    completed_at: datetime | None
