@@ -78,3 +78,41 @@ DISPATCHER_POLL_SECONDS = float(
         "1",
     )
 )
+
+VLLM_BASE_URL = os.getenv(
+    "VLLM_BASE_URL",
+    "http://127.0.0.1:8001",
+)
+
+VLLM_API_KEY = os.environ[
+    "VLLM_API_KEY"
+]
+
+INFERENCE_MODEL_ID = os.getenv(
+    "INFERENCE_MODEL_ID",
+    "Qwen/Qwen2.5-VL-7B-Instruct",
+)
+
+INFERENCE_MODEL_REVISION = os.getenv(
+    "INFERENCE_MODEL_REVISION",
+    "cc594898137f460bfe9f0759e9844b3ce807cfb5",
+)
+
+INFERENCE_SERVED_MODEL = os.getenv(
+    "INFERENCE_SERVED_MODEL",
+    "qwen2.5-vl-7b",
+)
+
+INFERENCE_MAX_COMPLETION_TOKENS = int(
+    os.getenv(
+        "INFERENCE_MAX_COMPLETION_TOKENS",
+        "256",
+    )
+)
+
+INFERENCE_TIMEOUT_SECONDS = float(
+    os.getenv(
+        "INFERENCE_TIMEOUT_SECONDS",
+        "120",
+    )
+)
