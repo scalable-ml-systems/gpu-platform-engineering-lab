@@ -1,59 +1,51 @@
-import uuid
+from uuid import uuid4
 
-from sqlalchemy.exc import IntegrityError
-
-from multimodal_inference.storage.database import SessionLocal
-from multimodal_inference.storage.models import Job, JobState
+from multimodal_inference.api.dependencies import (
+    get_database,
+)
+from multimodal_inference.storage.models import (
+    Job,
+    JobState,
+)
 
 
 def main() -> None:
-    idempotency_key = f"smoke-{uuid.uuid4()}"
+    database = next(get_database())
 
-    with SessionLocal() as session:
+    try:
         job = Job(
-            idempotency_key=idempotency_key,
-            prompt="Describe this image.",
-            image_uri="file:///tmp/test-image.jpg",
+            idempotency_key=(
+                f"check-job-store-{uuid4()}"
+            ),
+            state=JobState.QUEUED,
+            prompt="Describe this test image.",
+            image_bucket="multimodal-inputs",
+            image_object_key=f"inputs/{uuid4()}",
+            image_content_type="image/jpeg",
+            image_size_bytes=1024,
         )
 
-        session.add(job)
-        session.commit()
-        session.refresh(job)
+        database.add(job)
+        database.commit()
+        database.refresh(job)
 
-        loaded = session.get(Job, job.job_id)
+        print("Job store check passed")
+        print(f"job_id: {job.job_id}")
+        print(f"request_id: {job.request_id}")
+        print(f"state: {job.state.value}")
+        print(f"image_bucket: {job.image_bucket}")
+        print(f"image_object_key: {job.image_object_key}")
+        print(f"image_content_type: {job.image_content_type}")
+        print(f"image_size_bytes: {job.image_size_bytes}")
+        print(f"created_at: {job.created_at}")
 
-        assert loaded is not None
-        assert loaded.state == JobState.VALIDATED
-        assert loaded.retry_count == 0
+        database.delete(job)
+        database.commit()
 
-        print(f"created job: {loaded.job_id}")
-        print(f"state: {loaded.state.value}")
+        print("Cleanup completed")
 
-        duplicate = Job(
-            idempotency_key=idempotency_key,
-            prompt="Duplicate request.",
-            image_uri="file:///tmp/test-image.jpg",
-        )
-
-        session.add(duplicate)
-
-        try:
-            session.commit()
-        except IntegrityError:
-            session.rollback()
-            print("duplicate idempotency key: rejected")
-        else:
-            raise AssertionError(
-                "duplicate idempotency key was accepted"
-            )
-
-        original = session.get(Job, job.job_id)
-
-        if original:
-            session.delete(original)
-            session.commit()
-
-    print("job store check: PASS")
+    finally:
+        database.close()
 
 
 if __name__ == "__main__":

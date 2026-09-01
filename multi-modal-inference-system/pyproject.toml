@@ -17,6 +17,7 @@ dependencies = [
     "uvicorn[standard]",
     "redis[hiredis]==8.0.1",
     "httpx",
+    "requests",
 ]
 
 [project.optional-dependencies]
