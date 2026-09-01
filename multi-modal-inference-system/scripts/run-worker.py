@@ -52,7 +52,7 @@ def process_message(
         message_id,
     )
 
-   from multimodal_inference.inference.vllm_executor import (
+from multimodal_inference.inference.vllm_executor import (
     VLLMInferenceExecutor,
 )
 from multimodal_inference.worker.consumer import (

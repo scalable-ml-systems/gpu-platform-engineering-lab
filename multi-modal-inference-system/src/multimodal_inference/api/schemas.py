@@ -31,7 +31,7 @@ class JobCreateRequest(BaseModel):
         max_length=16000,
     )
 
-   class JobResponse(BaseModel):
+class JobResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
